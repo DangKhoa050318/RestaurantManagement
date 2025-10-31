@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessObjects.Models
 {
@@ -8,16 +9,17 @@ namespace BusinessObjects.Models
         [Key]
         public int TableId { get; set; }
 
-        [Required, StringLength(10)]
-        public string? TypeTable { get; set; } // 'VIP' | 'Normal'
+        [ForeignKey("Area")]
+        public int AreaId { get; set; }
 
-        [Required]
-        public int Capacity { get; set; }
+
+        [Required, StringLength(10)]
+        public string TableName { get; set; }
 
         [Required, StringLength(20)]
-        public string? Status { get; set; } // 'Empty', 'Booked', 'Using', 'Maintenance'
-
+        public string Status { get; set; }
         // Navigation property
+        public Area? Area { get; set; }
         public ICollection<Order>? Orders { get; set; }
     }
 }

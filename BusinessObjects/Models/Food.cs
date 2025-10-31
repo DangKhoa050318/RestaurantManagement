@@ -18,6 +18,9 @@ namespace BusinessObjects.Models
         [Required, Column(TypeName = "decimal(10,2)")]
         public decimal Price { get; set; }
 
+        [StringLength(20)]
+        public string? UnitOfCalculation { get; set; }
+
         [StringLength(250)]
         public string? Description { get; set; }
 
