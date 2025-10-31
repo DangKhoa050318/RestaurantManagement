@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessObjects.Models
 {
-    public class Table
+    public partial class Table
     {
         [Key]
         public int TableId { get; set; }
@@ -14,12 +14,12 @@ namespace BusinessObjects.Models
 
 
         [Required, StringLength(10)]
-        public string TableName { get; set; }
+        public string TableName { get; set; } = null!;
 
         [Required, StringLength(20)]
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
         // Navigation property
-        public Area? Area { get; set; }
-        public ICollection<Order>? Orders { get; set; }
+        public Area? Area { get; set; } = null!;
+        public ICollection<Order>? Orders { get; set; } = new List<Order>();
     }
 }

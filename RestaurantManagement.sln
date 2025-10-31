@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
+VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessObjects", "BusinessObjects\BusinessObjects.csproj", "{3DBBBBED-1A64-4CF8-BB1C-FDFB0274A7D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer", "BusinessLogicLayer\BusinessLogicLayer.csproj", "{B3775BD0-D046-4401-9C3D-041BC429F74F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "BusinessLogicLayer\Services.csproj", "{B3775BD0-D046-4401-9C3D-041BC429F74F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{F2BE67EA-1E3B-440C-A4C3-A455CEDEF5F5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManagementWPF", "RestaurantManagementWPF\RestaurantManagementWPF.csproj", "{52BB5FA0-1F20-4BE0-AB7C-698BA9895B0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{0077B8DD-DDF0-4D23-82F9-5355ACC2047C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{52BB5FA0-1F20-4BE0-AB7C-698BA9895B0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52BB5FA0-1F20-4BE0-AB7C-698BA9895B0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52BB5FA0-1F20-4BE0-AB7C-698BA9895B0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0077B8DD-DDF0-4D23-82F9-5355ACC2047C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0077B8DD-DDF0-4D23-82F9-5355ACC2047C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0077B8DD-DDF0-4D23-82F9-5355ACC2047C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0077B8DD-DDF0-4D23-82F9-5355ACC2047C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

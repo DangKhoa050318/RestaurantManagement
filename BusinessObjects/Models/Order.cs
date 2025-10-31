@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessObjects.Models
 {
-    public class Order
+    public partial class Order
     {
         [Key]
         public int OrderId { get; set; }
@@ -18,7 +18,7 @@ namespace BusinessObjects.Models
         public DateTime OrderTime { get; set; } = DateTime.Now;
 
         [Required, StringLength(15)]
-        public string Status { get; set; } = "Scheduled"; // Scheduled, Completed, Cancelled
+        public string Status { get; set; } = null!;
 
         [Required, Column(TypeName = "decimal(10,2)")]
         public decimal TotalAmount { get; set; } = 0;
@@ -26,6 +26,6 @@ namespace BusinessObjects.Models
         // Navigation properties
         public Table? Table { get; set; }
         public Customer? Customer { get; set; }
-        public ICollection<OrderDetail>? OrderDetails { get; set; }
+        public ICollection<OrderDetail>? OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }

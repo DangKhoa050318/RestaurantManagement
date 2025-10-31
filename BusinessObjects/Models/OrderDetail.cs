@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessObjects.Models
 {
-    public class OrderDetail
+    public partial class OrderDetail
     {
         [Key]
         public int OrderDetailId { get; set; }
@@ -11,17 +11,17 @@ namespace BusinessObjects.Models
         [ForeignKey("Order")]
         public int OrderId { get; set; }
 
-        [ForeignKey("Food")]
-        public int FoodId { get; set; }
+        [ForeignKey("Dish")]
+        public int DishId { get; set; }
 
         [Required]
-        public int Quantity { get; set; } = 1;
+        public int Quantity { get; set; }
 
         [Required, Column(TypeName = "decimal(10,2)")]
         public decimal UnitPrice { get; set; }
 
         // Navigation properties
-        public Order? Order { get; set; }
-        public Food? Food { get; set; }
+        public Order? Order { get; set; } = null!;
+        public Dish? Dish { get; set; } = null!;
     }
 }

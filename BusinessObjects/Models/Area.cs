@@ -3,18 +3,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BusinessObjects.Models
 {
-    public class Area
+    public partial class Area
     {
         [Key]
         public int AreaId { get; set; }
 
-        [StringLength(100)]
-        public string AreaName { get; set; }
-
         [StringLength(50)]
-        public string AreaStatus { get; set; }
+        public string AreaName { get; set; } = null!;
+
+        [StringLength(20)]
+        public string AreaStatus { get; set; } = null!;
 
         // Navigation property
-        public ICollection<Table>? Tables { get; set; }
+        public ICollection<Table>? Tables { get; set; } = new List<Table>();
     }
 }
