@@ -40,7 +40,7 @@ CREATE TABLE categories (
 );
 GO
 
-CREATE TABLE dishs (
+CREATE TABLE dishes (
     DishId INT IDENTITY(1,1) PRIMARY KEY,
     CategoryId INT NULL,
     Name NVARCHAR(150) NOT NULL,
@@ -86,7 +86,7 @@ CREATE TABLE orderdetails (
         ON DELETE CASCADE ON UPDATE CASCADE,
 
     FOREIGN KEY (DishId)
-        REFERENCES dishs(DishId)
+        REFERENCES dishes(DishId)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 GO
@@ -127,7 +127,7 @@ VALUES
 (N'Đồ uống', N'Thức uống kèm theo trong bữa ăn');
 GO
 
-INSERT INTO dishs (CategoryId, Name, Price, UnitOfCalculation, Description, ImgURL)
+INSERT INTO dishes (CategoryId, Name, Price, UnitOfCalculation, Description, ImgURL)
 VALUES
 (1, N'Gỏi cuốn tôm thịt', 45000, 'phần', N'Món khai vị nhẹ nhàng với tôm và thịt', 'images/goi-cuon.jpg'),
 (1, N'Súp hải sản', 55000, 'tô', N'Súp thơm ngon với hải sản tươi', 'images/sup-hai-san.jpg'),
@@ -175,9 +175,9 @@ select * from customers;
 select * from areas;
 select * from tables;
 select * from categories;
-select * from dishs;
+select * from dishes;
 select * from orders;
 select * from orderdetails;
 
-drop table dishs;
+drop table dishes;
 drop table orders;
