@@ -1,0 +1,295 @@
+<Page x:Class="RestaurantManagementWPF.Views.Pages.AreaManagementPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:vm="clr-namespace:RestaurantManagementWPF.ViewModels"
+      mc:Ignorable="d"
+      d:DesignHeight="600" d:DesignWidth="1000"
+      Title="Area Management"
+      Background="White">
+
+    <Page.DataContext>
+        <vm:AreaManagementViewModel/>
+    </Page.DataContext>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Loading Overlay -->
+        <Border Grid.RowSpan="2"
+                Background="#80FFFFFF"
+                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Panel.ZIndex="999">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Loading areas..." 
+                           Foreground="#666666" 
+                           FontSize="16" 
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,10"/>
+                <ProgressBar IsIndeterminate="True" 
+                             Width="200" 
+                             Height="4"
+                             Foreground="{StaticResource PrimaryBrush}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Page Title & Toolbar -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Area Management" 
+                       FontSize="28" 
+                       FontWeight="Bold"
+                       Foreground="#333333"
+                       Margin="0,0,0,10"/>
+            
+            <!-- Toolbar -->
+            <StackPanel Orientation="Horizontal">
+                <Button Content="+ Add Area"
+                        Command="{Binding AddAreaCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        Padding="15,10"
+                        Margin="0,0,10,0"/>
+                
+                <Button Content="Edit"
+                        Command="{Binding EditAreaCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        Padding="15,10"
+                        Margin="0,0,10,0"/>
+                
+                <Button Content="Delete"
+                        Command="{Binding DeleteAreaCommand}"
+                        Style="{StaticResource DangerButton}"
+                        Padding="15,10"
+                        Margin="0,0,10,0"/>
+                
+                <Button Content="Refresh"
+                        Command="{Binding RefreshCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        Padding="15,10"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Main Content: 2 Panels -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel: Area List -->
+            <Border Grid.Column="0"
+                    Background="White"
+                    BorderBrush="#E0E0E0"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0"
+                            Background="#F5F5F5"
+                            Padding="15,10"
+                            BorderBrush="#E0E0E0"
+                            BorderThickness="0,0,0,1">
+                        <TextBlock Text="Areas" 
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="#333333"/>
+                    </Border>
+
+                    <!-- Area List -->
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Areas}"
+                             SelectedItem="{Binding SelectedArea}"
+                             BorderThickness="0"
+                             Background="Transparent">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="15,12"
+                                        BorderBrush="#F0F0F0"
+                                        BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0"
+                                                   Text="{Binding AreaName}"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#333333"/>
+                                        
+                                        <StackPanel Grid.Row="1" 
+                                                    Orientation="Horizontal"
+                                                    Margin="0,5,0,0">
+                                            <TextBlock Text="{Binding AreaStatus}"
+                                                       FontSize="12"
+                                                       Foreground="{Binding AreaStatus, Converter={StaticResource StatusToColorConverter}}"
+                                                       Margin="0,0,10,0"/>
+                                            <TextBlock FontSize="12" Foreground="#999999">
+                                                <Run Text="|"/>
+                                                <Run Text="{Binding Tables.Count, Mode=OneWay}"/>
+                                                <Run Text="tables"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border Background="{TemplateBinding Background}">
+                                                <ContentPresenter/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#E3F2FD"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#F5F5F5"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <!-- Right Panel: Tables Grid -->
+            <Border Grid.Column="2"
+                    Background="White"
+                    BorderBrush="#E0E0E0"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0"
+                            Background="#F5F5F5"
+                            Padding="15,10"
+                            BorderBrush="#E0E0E0"
+                            BorderThickness="0,0,0,1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Tables in " 
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="#333333"/>
+                            <TextBlock Text="{Binding SelectedArea.AreaName, FallbackValue='(Select an area)'}"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryBrush}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Tables Display -->
+                    <ScrollViewer Grid.Row="1" 
+                                  VerticalScrollBarVisibility="Auto"
+                                  Padding="15">
+                        <ItemsControl ItemsSource="{Binding TablesInSelectedArea}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Width="120" 
+                                            Height="120"
+                                            Margin="10"
+                                            Background="#F5F5F5"
+                                            BorderBrush="#E0E0E0"
+                                            BorderThickness="2"
+                                            CornerRadius="8"
+                                            Padding="10">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Table Name -->
+                                            <TextBlock Grid.Row="0"
+                                                       Text="{Binding TableName}"
+                                                       FontSize="14"
+                                                       FontWeight="Bold"
+                                                       Foreground="#333333"
+                                                       HorizontalAlignment="Center"/>
+
+                                            <!-- Icon -->
+                                            <Viewbox Grid.Row="1" 
+                                                     Width="40" 
+                                                     Height="40"
+                                                     Margin="0,10">
+                                                <TextBlock Text="&#128444;" 
+                                                           FontSize="32"/>
+                                            </Viewbox>
+
+                                            <!-- Status Badge -->
+                                            <Border Grid.Row="2"
+                                                    Background="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                                    CornerRadius="4"
+                                                    Padding="8,4">
+                                                <TextBlock Text="{Binding Status}"
+                                                           FontSize="11"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="White"
+                                                           HorizontalAlignment="Center"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- Empty State -->
+                    <StackPanel Grid.Row="1"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TablesInSelectedArea.Count}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        
+                        <TextBlock Text="No tables in this area"
+                                   FontSize="16"
+                                   Foreground="#999999"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,10"/>
+                        <TextBlock Text="Click + Add Area to create a new area with tables"
+                                   FontSize="14"
+                                   Foreground="#CCCCCC"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

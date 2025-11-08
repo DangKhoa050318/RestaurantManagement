@@ -14,7 +14,7 @@ namespace BusinessObjects.Models
         [StringLength(20)]
         public string AreaStatus { get; set; } = null!;
 
-        // Navigation property
-        public ICollection<Table>? Tables { get; set; } = new List<Table>();
+        // Navigation property - DON'T initialize here
+        public ICollection<Table>? Tables { get; set; }
     }
 }

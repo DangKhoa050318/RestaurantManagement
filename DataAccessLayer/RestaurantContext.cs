@@ -71,7 +71,7 @@ namespace DataAccessLayer
             {
                 entity.HasKey(e => e.DishId).HasName("PK__dishs__18834F505B455D73");
 
-                entity.ToTable("dishs");
+                entity.ToTable("dishes");
 
                 entity.Property(e => e.Description).HasMaxLength(250);
                 entity.Property(e => e.ImgUrl)
@@ -164,6 +164,9 @@ namespace DataAccessLayer
                 entity.HasKey(e => e.AreaId).HasName("PK__areas__70B82048FEB1C266");
 
                 entity.ToTable("areas");
+
+                entity.Property(e => e.AreaId)
+                    .ValueGeneratedOnAdd(); // Auto-increment identity
 
                 entity.Property(e => e.AreaName).HasMaxLength(50);
                 entity.Property(e => e.AreaStatus)

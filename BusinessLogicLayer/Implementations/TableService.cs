@@ -29,7 +29,7 @@ namespace Services.Implementations
                 throw new ArgumentException("Table name cannot be empty.");
 
             if (string.IsNullOrWhiteSpace(table.Status))
-                table.Status = "Available"; // mặc định là bàn trống
+                table.Status = "Empty"; // Default: Empty table
 
             _tableRepository.AddTable(table);
         }
@@ -78,8 +78,8 @@ namespace Services.Implementations
 
         public void UpdateTableStatus(int tableId, string newStatus)
         {
-            // Validation trạng thái
-            var validStatuses = new[] { "Available", "Occupied", "Reserved", "Maintenance" };
+            // Validation - Valid statuses from database CHECK constraint
+            var validStatuses = new[] { "Empty", "Using", "Booked", "Maintenance" };
             if (!validStatuses.Contains(newStatus, StringComparer.OrdinalIgnoreCase))
                 throw new ArgumentException($"Invalid status. Valid options: {string.Join(", ", validStatuses)}");
 

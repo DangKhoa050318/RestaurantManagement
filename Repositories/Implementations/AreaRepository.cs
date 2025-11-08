@@ -48,8 +48,14 @@ namespace DataAccessLayer.Repositories.Implementations
         {
             using (var context = new RestaurantMiniManagementDbContext())
             {
-                context.Areas.Add(area);
+                // Track the entity
+                var entry = context.Areas.Add(area);
+                
+                // Save to database - this should populate AreaId
                 context.SaveChanges();
+                
+                // At this point, area.AreaId SHOULD have value from database
+                // The 'area' object passed by reference will be updated
             }
         }
 
@@ -66,15 +72,25 @@ namespace DataAccessLayer.Repositories.Implementations
         {
             using (var context = new RestaurantMiniManagementDbContext())
             {
-                //Kiểm tra xem Area còn Bàn không
-                bool hasTables = context.Tables.Any(t => t.AreaId == areaId);
-                if (hasTables)
+                // Check if area has tables
+                var tablesInArea = context.Tables.Where(t => t.AreaId == areaId).ToList();
+                
+                if (tablesInArea.Any())
                 {
-                    // Nếu còn Bàn, báo lỗi
-                    throw new Exception("Cannot delete area. It still contains tables.");
+                    // Check if any table has orders
+                    bool hasActiveOrders = tablesInArea.Any(table => 
+                        context.Orders.Any(o => o.TableId == table.TableId));
+                    
+                    if (hasActiveOrders)
+                    {
+                        throw new Exception("Cannot delete area. Some tables have active orders. Please complete or cancel all orders first.");
+                    }
+                    
+                    // No active orders - safe to delete tables
+                    context.Tables.RemoveRange(tablesInArea);
                 }
 
-                // Nếu không còn Bàn, tiến hành xóa
+                // Now delete the area
                 var area = context.Areas.Find(areaId);
                 if (area != null)
                 {
