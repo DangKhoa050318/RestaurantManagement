@@ -17,6 +17,8 @@ namespace BusinessObjects.Models
         [Required]
         public DateTime OrderTime { get; set; } = DateTime.Now;
 
+        public DateTime PaymentTime { get; set; } = DateTime.Now;
+
         [Required, StringLength(15)]
         public string Status { get; set; } = null!;
 
