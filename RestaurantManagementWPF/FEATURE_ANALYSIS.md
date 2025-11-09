@@ -88,7 +88,7 @@
 
 ---
 
-## IV. QUẢN LÝ KHU VỰC & BÀN
+## IV. QUẢN LÝ KHƯ VỰC & BÀN
 
 ### ✅ 4. Quản lý khu vực (Area Management)
 
@@ -250,20 +250,24 @@
 
 ## VIII. QUẢN LÝ KHÁCH HÀNG
 
-### ❌ 11. Quản lý khách hàng (Customer Management)
+### 🟢 8. Quản lý khách hàng (Customer Management)
 
 **Yêu cầu:**
 - ✅ CRUD khách hàng
-- ✅ Search theo tên/SĐT
-- ✅ Lịch sử đơn hàng
+- ✅ Xem thông tin khách hàng  
+- ✅ Search by name/phone
+- ✅ Hiển thị số lượng orders của customer
 
-**Trạng thái:** ❌ CHƯA CÓ
-**Backend:** ✅ CustomerService hoàn chỉnh (có SearchCustomer)
-**Cần tạo:**
-- [ ] Views/Pages/CustomerManagementPage.xaml
-- [ ] ViewModels/CustomerManagementViewModel.cs
-- [ ] Dialogs/AddCustomerDialog.xaml + ViewModel
-- [ ] Dialogs/EditCustomerDialog.xaml + ViewModel
+**Trạng thái:** ✅ 100% HOÀN THÀNH
+**Đã tạo:**
+- [x] Backend: CustomerService hoàn chỉnh (có SearchCustomer, check phone duplicate)
+- [x] Views/Pages/CustomerManagementPage.xaml
+- [x] ViewModels/CustomerManagementViewModel.cs
+- [x] Dialogs/AddCustomerDialog.xaml + ViewModel
+- [x] Dialogs/EditCustomerDialog.xaml + ViewModel
+- [x] Search với phone/name detection
+
+**Ghi chú:** ✅ Simple & clean - chỉ 2 fields (Name, Phone)
 
 ---
 
@@ -276,7 +280,7 @@
 - ✅ EF Core + SQL Server
 - ⚠️ Cần bổ sung nhỏ: OrderRepository.GetOrdersByDateRange()
 
-### Frontend Status: 🟡 60% Complete
+### Frontend Status: 🟢 70% Complete
 - ✅ Project structure (MVVM folders)
 - ✅ Base classes (BaseViewModel, RelayCommand)
 - ✅ Services (Configuration, Dialog, Navigation, Authentication)
@@ -286,10 +290,10 @@
 - ✅ DashboardPage + ViewModel ✅
 - ✅ AreaManagementPage + ViewModel + Dialogs ✅
 - ✅ CategoryManagementPage + ViewModel + Dialogs ✅
-- ✅ DishManagementPage + ViewModel + Dialogs ✅ (100% COMPLETE!)
+- ✅ DishManagementPage + ViewModel + Dialogs ✅
+- ✅ CustomerManagementPage + ViewModel + Dialogs ✅ (NEW!)
 - ❌ POSPage (CORE FEATURE - 0%)
 - ❌ OrderReportPage (0%)
-- ❌ CustomerManagementPage (0%)
 - ❌ TableManagement UI (backend ready, no UI)
 - ❌ PaymentDialog (0%)
 

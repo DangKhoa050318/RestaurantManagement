@@ -62,7 +62,7 @@ namespace RestaurantManagementWPF.ViewModels
                     "Area" => new Views.Pages.AreaManagementPage(),
                     "Dish" => new Views.Pages.DishManagementPage(),
                     "Category" => new Views.Pages.CategoryManagementPage(),
-                    "Customer" => null, // new Views.Pages.CustomerManagementPage(),
+                    "Customer" => new Views.Pages.CustomerManagementPage(),
                     "Report" => null, // new Views.Pages.OrderReportPage(),
                     _ => null
                 };
