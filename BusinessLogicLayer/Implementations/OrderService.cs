@@ -20,7 +20,6 @@ namespace Services.Implementations
         public List<Order> GetOrders() => _orderRepository.GetOrders();
         public Order GetOrderById(int id) => _orderRepository.GetOrderById(id);
         public List<Order> GetOrdersByCustomerId(int customerId) => _orderRepository.GetOrdersByCustomerId(customerId);
-
         public List<Order> GetOrdersByTableId(int tableId) => _orderRepository.GetOrdersByTableId(tableId);
 
         public void AddOrder(Order order)
@@ -31,9 +30,10 @@ namespace Services.Implementations
             // CustomerId có thể null (khách vãng lai) nên không cần check <= 0
 
             if (string.IsNullOrWhiteSpace(order.Status))
-                order.Status = "Pending"; // Trạng thái mặc định
+                order.Status = "Scheduled"; // Trạng thái mặc định
 
             order.OrderTime = DateTime.Now;
+            order.PaymentTime = null; // Chưa thanh toán
             order.TotalAmount = 0; // Sẽ được cập nhật bởi OrderDetailService
 
             _orderRepository.AddOrder(order);
@@ -50,6 +50,7 @@ namespace Services.Implementations
             existing.Status = order.Status;
             existing.TotalAmount = order.TotalAmount;
             existing.OrderTime = order.OrderTime;
+            existing.PaymentTime = order.PaymentTime; // ✅ Cập nhật PaymentTime
 
             _orderRepository.UpdateOrder(existing);
         }
@@ -62,7 +63,7 @@ namespace Services.Implementations
 
         public void UpdateOrderStatus(int orderId, string newStatus)
         {
-            var validStatuses = new[] { "In Progress", "Completed", "Cancelled" }; 
+            var validStatuses = new[] { "Scheduled", "Completed", "Cancelled" }; 
             if (!validStatuses.Contains(newStatus))
                 throw new ArgumentException($"Invalid status. Valid options: {string.Join(", ", validStatuses)}");
 
@@ -71,6 +72,34 @@ namespace Services.Implementations
                 throw new Exception("Order not found.");
 
             order.Status = newStatus;
+            
+            // ✅ Tự động set PaymentTime khi order Completed
+            if (newStatus == "Completed" && order.PaymentTime == null)
+            {
+                order.PaymentTime = DateTime.Now;
+            }
+            
+            _orderRepository.UpdateOrder(order);
+        }
+
+        /// <summary>
+        /// Thanh toán đơn hàng - Set PaymentTime và Status = Completed
+        /// </summary>
+        public void PayOrder(int orderId)
+        {
+            var order = _orderRepository.GetOrderById(orderId);
+            if (order == null)
+                throw new Exception("Order not found.");
+
+            if (order.Status == "Completed")
+                throw new Exception("Order already paid.");
+
+            if (order.Status == "Cancelled")
+                throw new Exception("Cannot pay cancelled order.");
+
+            order.PaymentTime = DateTime.Now;
+            order.Status = "Completed";
+            
             _orderRepository.UpdateOrder(order);
         }
     }

@@ -13,5 +13,6 @@ namespace Services.Interfaces
         void UpdateOrder(Order order);
         void DeleteOrder(int id);
         void UpdateOrderStatus(int orderId, string newStatus);
+        void PayOrder(int orderId);
     }
 }
