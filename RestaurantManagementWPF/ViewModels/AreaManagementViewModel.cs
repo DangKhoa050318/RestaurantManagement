@@ -18,8 +18,8 @@ namespace RestaurantManagementWPF.ViewModels
 
         private ObservableCollection<Area> _areas = new();
         private Area? _selectedArea;
-        private ObservableCollection<Table> _tablesInSelectedArea = new();
-        private Table? _selectedTable;
+        private ObservableCollection<TableViewModel> _tablesInSelectedArea = new();
+        private TableViewModel? _selectedTable;
         private bool _isLoading;
 
         public AreaManagementViewModel()
@@ -65,13 +65,13 @@ namespace RestaurantManagementWPF.ViewModels
             }
         }
 
-        public ObservableCollection<Table> TablesInSelectedArea
+        public ObservableCollection<TableViewModel> TablesInSelectedArea
         {
             get => _tablesInSelectedArea;
             set => SetProperty(ref _tablesInSelectedArea, value);
         }
 
-        public Table? SelectedTable
+        public TableViewModel? SelectedTable
         {
             get => _selectedTable;
             set
@@ -149,7 +149,14 @@ namespace RestaurantManagementWPF.ViewModels
                     var tables = _tableService.GetTablesByArea(SelectedArea.AreaId);
                     foreach (var table in tables)
                     {
-                        TablesInSelectedArea.Add(table);
+                        TablesInSelectedArea.Add(new TableViewModel
+                        {
+                            TableId = table.TableId,
+                            TableName = table.TableName,
+                            Status = table.Status ?? "Empty",
+                            AreaId = table.AreaId,
+                            AreaName = SelectedArea.AreaName
+                        });
                     }
                 }
                 catch (Exception ex)
@@ -287,7 +294,7 @@ namespace RestaurantManagementWPF.ViewModels
 
         private void ExecuteSelectTable(object? parameter)
         {
-            if (parameter is Table table)
+            if (parameter is TableViewModel table)
             {
                 SelectedTable = table;
             }
@@ -353,28 +360,25 @@ namespace RestaurantManagementWPF.ViewModels
 
         private void ExecuteEditTable(object? parameter)
         {
-            if (parameter is not Table table)
+            TableViewModel? tableViewModel = null;
+            
+            if (parameter is TableViewModel vm)
             {
-                if (SelectedTable == null)
-                {
-                    _dialogService.ShowWarning("Please select a table first!", "No Table Selected");
-                    return;
-                }
-                table = SelectedTable;
+                tableViewModel = vm;
+            }
+            else if (SelectedTable != null)
+            {
+                tableViewModel = SelectedTable;
+            }
+            else
+            {
+                _dialogService.ShowWarning("Please select a table first!", "No Table Selected");
+                return;
             }
 
             try
             {
                 var dialog = new Views.Dialogs.EditTableDialog();
-                var tableViewModel = new ViewModels.Models.TableViewModel
-                {
-                    TableId = table.TableId,
-                    TableName = table.TableName,
-                    Status = table.Status,
-                    AreaId = table.AreaId,
-                    AreaName = SelectedArea?.AreaName ?? ""
-                };
-
                 var areas = Areas.ToList();
                 var viewModel = new Dialogs.EditTableDialogViewModel(tableViewModel, areas);
                 dialog.DataContext = viewModel;
@@ -383,7 +387,7 @@ namespace RestaurantManagementWPF.ViewModels
                 {
                     var updatedTable = new Table
                     {
-                        TableId = table.TableId,
+                        TableId = tableViewModel.TableId,
                         TableName = viewModel.TableName,
                         AreaId = viewModel.SelectedArea.AreaId,
                         Status = viewModel.SelectedStatus
@@ -403,18 +407,24 @@ namespace RestaurantManagementWPF.ViewModels
 
         private void ExecuteDeleteTable(object? parameter)
         {
-            if (parameter is not Table table)
+            TableViewModel? tableViewModel = null;
+            
+            if (parameter is TableViewModel vm)
             {
-                if (SelectedTable == null)
-                {
-                    _dialogService.ShowWarning("Please select a table first!", "No Table Selected");
-                    return;
-                }
-                table = SelectedTable;
+                tableViewModel = vm;
+            }
+            else if (SelectedTable != null)
+            {
+                tableViewModel = SelectedTable;
+            }
+            else
+            {
+                _dialogService.ShowWarning("Please select a table first!", "No Table Selected");
+                return;
             }
 
             var confirm = _dialogService.ShowConfirmation(
-                $"Are you sure you want to delete table '{table.TableName}'?\n\nThis action cannot be undone if the table has no orders.",
+                $"Are you sure you want to delete table '{tableViewModel.TableName}'?\n\nThis action cannot be undone if the table has no orders.",
                 "Delete Table"
             );
 
@@ -422,8 +432,8 @@ namespace RestaurantManagementWPF.ViewModels
             {
                 try
                 {
-                    _tableService.DeleteTable(table.TableId);
-                    _dialogService.ShowSuccess($"Table '{table.TableName}' deleted successfully!");
+                    _tableService.DeleteTable(tableViewModel.TableId);
+                    _dialogService.ShowSuccess($"Table '{tableViewModel.TableName}' deleted successfully!");
                     LoadTablesForSelectedArea();
                     _ = LoadAreasAsync();
                 }
