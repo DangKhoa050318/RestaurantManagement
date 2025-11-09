@@ -1,6 +1,8 @@
 using BusinessObjects.Models;
 using RestaurantManagementWPF.Helpers;
 using RestaurantManagementWPF.Services;
+using RestaurantManagementWPF.Views.Dialogs;
+using RestaurantManagementWPF.ViewModels.Dialogs;
 using Services.Implementations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -14,11 +16,13 @@ namespace RestaurantManagementWPF.ViewModels
         private readonly DialogService _dialogService;
 
         private ObservableCollection<Dish> _dishes = new();
+        private ObservableCollection<Dish> _allDishes = new(); // Cache all dishes for filtering
         private ObservableCollection<Category> _categories = new();
         private Dish? _selectedDish;
         private Category? _selectedCategoryFilter;
         private string _searchText = string.Empty;
         private bool _isLoading;
+        private bool _isInitializing = true; // Prevent filter during initialization
 
         public DishManagementViewModel()
         {
@@ -34,9 +38,16 @@ namespace RestaurantManagementWPF.ViewModels
             SearchCommand = new RelayCommand(_ => ApplyFilter());
             ClearFilterCommand = new RelayCommand(ExecuteClearFilter);
 
-            // Load data
-            _ = LoadCategoriesAsync();
-            _ = LoadDishesAsync();
+            // Load data asynchronously
+            _ = InitializeAsync();
+        }
+
+        private async Task InitializeAsync()
+        {
+            _isInitializing = true;
+            await LoadCategoriesAsync();
+            await LoadDishesAsync();
+            _isInitializing = false;
         }
 
         #region Properties
@@ -72,7 +83,11 @@ namespace RestaurantManagementWPF.ViewModels
             {
                 if (SetProperty(ref _selectedCategoryFilter, value))
                 {
-                    ApplyFilter();
+                    // Only apply filter after initialization complete
+                    if (!_isInitializing)
+                    {
+                        ApplyFilter();
+                    }
                 }
             }
         }
@@ -84,7 +99,11 @@ namespace RestaurantManagementWPF.ViewModels
             {
                 if (SetProperty(ref _searchText, value))
                 {
-                    ApplyFilter();
+                    // Only apply filter after initialization complete
+                    if (!_isInitializing)
+                    {
+                        ApplyFilter();
+                    }
                 }
             }
         }
@@ -127,7 +146,8 @@ namespace RestaurantManagementWPF.ViewModels
                         {
                             Categories.Add(category);
                         }
-                        SelectedCategoryFilter = Categories[0]; // Select "All"
+                        // This won't trigger filter because _isInitializing = true
+                        SelectedCategoryFilter = Categories[0];
                     });
                 });
             }
@@ -149,15 +169,17 @@ namespace RestaurantManagementWPF.ViewModels
 
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
-                        Dishes.Clear();
+                        // Store all dishes in cache
+                        _allDishes.Clear();
                         foreach (var dish in dishes)
                         {
-                            Dishes.Add(dish);
+                            _allDishes.Add(dish);
                         }
+                        
+                        // Apply current filter to display
+                        ApplyFilterInternal();
                     });
                 });
-
-                ApplyFilter();
             }
             catch (Exception ex)
             {
@@ -171,25 +193,191 @@ namespace RestaurantManagementWPF.ViewModels
 
         private void ApplyFilter()
         {
-            // Will implement search and category filter
-            _ = LoadDishesAsync();
+            // Filter on cached data - NO RELOAD!
+            ApplyFilterInternal();
+        }
+
+        private void ApplyFilterInternal()
+        {
+            // Start with all dishes
+            var filtered = _allDishes.AsEnumerable();
+
+            // Filter by category
+            if (SelectedCategoryFilter != null && SelectedCategoryFilter.CategoryId != 0)
+            {
+                filtered = filtered.Where(d => d.CategoryId == SelectedCategoryFilter.CategoryId);
+            }
+
+            // Filter by search text
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                filtered = filtered.Where(d => 
+                    d.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                    (d.Description != null && d.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+                );
+            }
+
+            // Update displayed dishes
+            Dishes.Clear();
+            foreach (var dish in filtered)
+            {
+                Dishes.Add(dish);
+            }
         }
 
         private void ExecuteClearFilter(object? parameter)
         {
+            // Prevent triggering filter multiple times
+            _isInitializing = true;
             SearchText = string.Empty;
             SelectedCategoryFilter = Categories.FirstOrDefault();
+            _isInitializing = false;
+            
+            // Apply filter once
+            ApplyFilter();
         }
 
         private void ExecuteAddDish(object? parameter)
         {
-            _dialogService.ShowMessage("Add Dish - Coming soon!");
+            System.Diagnostics.Debug.WriteLine("=== ExecuteAddDish called ===");
+            
+            try
+            {
+                var dialog = new AddDishDialog();
+                System.Diagnostics.Debug.WriteLine("Dialog created");
+                
+                var viewModel = new AddDishDialogViewModel();
+                System.Diagnostics.Debug.WriteLine($"ViewModel created. Categories count: {viewModel.Categories.Count}");
+                
+                dialog.DataContext = viewModel;
+                System.Diagnostics.Debug.WriteLine("DataContext set");
+
+                System.Diagnostics.Debug.WriteLine("Calling dialog.ShowDialog()...");
+                var dialogResult = dialog.ShowDialog();
+                System.Diagnostics.Debug.WriteLine($"Dialog closed. Result: {dialogResult}, ViewModel.DialogResult: {viewModel.DialogResult}");
+
+                if (dialogResult == true && viewModel.DialogResult)
+                {
+                    System.Diagnostics.Debug.WriteLine("? User clicked CREATE, processing dish...");
+                    System.Diagnostics.Debug.WriteLine($"Data: Name='{viewModel.DishName}', Price='{viewModel.Price}', Category={viewModel.SelectedCategory?.Name}, Unit='{viewModel.SelectedUnit}'");
+                    
+                    // Parse price with proper error handling
+                    if (!decimal.TryParse(viewModel.Price, System.Globalization.NumberStyles.Any, 
+                        System.Globalization.CultureInfo.InvariantCulture, out decimal priceValue))
+                    {
+                        System.Diagnostics.Debug.WriteLine("? ERROR: Price parsing failed");
+                        _dialogService.ShowError("Invalid price format. Please enter a valid number.");
+                        return;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"? Price parsed successfully: {priceValue}");
+
+                    // Create new Dish object
+                    var newDish = new Dish
+                    {
+                        Name = viewModel.DishName,
+                        CategoryId = viewModel.SelectedCategory?.CategoryId,
+                        Price = priceValue,
+                        UnitOfCalculation = viewModel.SelectedUnit,
+                        Description = string.IsNullOrWhiteSpace(viewModel.Description) ? null : viewModel.Description,
+                        ImgUrl = string.IsNullOrWhiteSpace(viewModel.ImageUrl) ? null : viewModel.ImageUrl
+                    };
+
+                    System.Diagnostics.Debug.WriteLine($"? Dish object created: ID={newDish.DishId}, Name='{newDish.Name}', CategoryId={newDish.CategoryId}, Price={newDish.Price}");
+                    System.Diagnostics.Debug.WriteLine("?? Calling _dishService.AddDish()...");
+
+                    // Save to database
+                    _dishService.AddDish(newDish);
+
+                    System.Diagnostics.Debug.WriteLine("? Dish saved to database successfully!");
+
+                    // Show success message
+                    _dialogService.ShowSuccess($"Dish '{newDish.Name}' created successfully!");
+
+                    // Reload dishes
+                    System.Diagnostics.Debug.WriteLine("?? Reloading dishes...");
+                    _ = LoadDishesAsync();
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("? User cancelled the dialog or DialogResult = false");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"?? EXCEPTION in ExecuteAddDish: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                _dialogService.ShowError($"Error creating dish: {ex.Message}");
+            }
+            
+            System.Diagnostics.Debug.WriteLine("=== ExecuteAddDish completed ===\n");
         }
 
         private void ExecuteEditDish(object? parameter)
         {
             if (SelectedDish == null) return;
-            _dialogService.ShowMessage($"Edit Dish: {SelectedDish.Name} - Coming soon!");
+
+            // System.Diagnostics.Debug.WriteLine("=== ExecuteEditDish called ===");
+            
+            try
+            {
+                var dialog = new EditDishDialog();
+                var viewModel = new EditDishDialogViewModel(SelectedDish);
+                dialog.DataContext = viewModel;
+
+                var dialogResult = dialog.ShowDialog();
+                // System.Diagnostics.Debug.WriteLine($"Dialog closed. Result: {dialogResult}");
+
+                if (dialogResult == true && viewModel.DialogResult)
+                {
+                    // System.Diagnostics.Debug.WriteLine("User clicked SAVE, updating dish...");
+                    
+                    // Parse price with proper error handling
+                    if (!decimal.TryParse(viewModel.Price, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out decimal priceValue))
+                    {
+                        // System.Diagnostics.Debug.WriteLine("ERROR: Price parsing failed");
+                        _dialogService.ShowError("Invalid price format. Please enter a valid number.");
+                        return;
+                    }
+
+                    // Update dish object with new values
+                    var updatedDish = new Dish
+                    {
+                        DishId = viewModel.DishId,
+                        Name = viewModel.DishName,
+                        CategoryId = viewModel.SelectedCategory?.CategoryId,
+                        Price = priceValue,
+                        UnitOfCalculation = viewModel.SelectedUnit,
+                        Description = string.IsNullOrWhiteSpace(viewModel.Description) ? null : viewModel.Description,
+                        ImgUrl = string.IsNullOrWhiteSpace(viewModel.ImageUrl) ? null : viewModel.ImageUrl
+                    };
+
+                    // System.Diagnostics.Debug.WriteLine("Updating dish in database...");
+
+                    // Save changes to database
+                    _dishService.UpdateDish(updatedDish);
+
+                    // System.Diagnostics.Debug.WriteLine("Dish updated successfully!");
+
+                    // Show success message
+                    _dialogService.ShowSuccess($"Dish '{updatedDish.Name}' updated successfully!");
+
+                    // Reload dishes
+                    _ = LoadDishesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"EXCEPTION in ExecuteEditDish: {ex.Message}");
+                _dialogService.ShowError($"Error updating dish: {ex.Message}");
+            }
+            
+            // System.Diagnostics.Debug.WriteLine("=== ExecuteEditDish completed ===");
         }
 
         private void ExecuteDeleteDish(object? parameter)
