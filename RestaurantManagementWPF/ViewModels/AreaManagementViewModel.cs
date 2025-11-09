@@ -2,6 +2,7 @@ using BusinessLogicLayer.Services.Implementations;
 using BusinessObjects.Models;
 using RestaurantManagementWPF.Helpers;
 using RestaurantManagementWPF.Services;
+using RestaurantManagementWPF.ViewModels.Models;
 using Services.Implementations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -18,6 +19,7 @@ namespace RestaurantManagementWPF.ViewModels
         private ObservableCollection<Area> _areas = new();
         private Area? _selectedArea;
         private ObservableCollection<Table> _tablesInSelectedArea = new();
+        private Table? _selectedTable;
         private bool _isLoading;
 
         public AreaManagementViewModel()
@@ -26,11 +28,17 @@ namespace RestaurantManagementWPF.ViewModels
             _tableService = new TableService(TableRepository.Instance);
             _dialogService = new DialogService();
 
-            // Commands
+            // Area Commands
             AddAreaCommand = new RelayCommand(ExecuteAddArea);
             EditAreaCommand = new RelayCommand(ExecuteEditArea, _ => SelectedArea != null);
             DeleteAreaCommand = new RelayCommand(ExecuteDeleteArea, _ => SelectedArea != null);
             RefreshCommand = new RelayCommand(async _ => await LoadAreasAsync());
+
+            // Table Commands
+            AddTableCommand = new RelayCommand(ExecuteAddTable, _ => SelectedArea != null);
+            EditTableCommand = new RelayCommand(ExecuteEditTable);
+            DeleteTableCommand = new RelayCommand(ExecuteDeleteTable);
+            SelectTableCommand = new RelayCommand(ExecuteSelectTable);
 
             // Load data
             _ = LoadAreasAsync();
@@ -63,6 +71,18 @@ namespace RestaurantManagementWPF.ViewModels
             set => SetProperty(ref _tablesInSelectedArea, value);
         }
 
+        public Table? SelectedTable
+        {
+            get => _selectedTable;
+            set
+            {
+                if (SetProperty(ref _selectedTable, value))
+                {
+                    CommandManager.InvalidateRequerySuggested();
+                }
+            }
+        }
+
         public bool IsLoading
         {
             get => _isLoading;
@@ -77,6 +97,12 @@ namespace RestaurantManagementWPF.ViewModels
         public ICommand EditAreaCommand { get; }
         public ICommand DeleteAreaCommand { get; }
         public ICommand RefreshCommand { get; }
+
+        // Table Management Commands
+        public ICommand AddTableCommand { get; }
+        public ICommand EditTableCommand { get; }
+        public ICommand DeleteTableCommand { get; }
+        public ICommand SelectTableCommand { get; }
 
         #endregion
 
@@ -256,6 +282,159 @@ namespace RestaurantManagementWPF.ViewModels
                 }
             }
         }
+
+        #region Table Management Methods
+
+        private void ExecuteSelectTable(object? parameter)
+        {
+            if (parameter is Table table)
+            {
+                SelectedTable = table;
+            }
+        }
+
+        private void ExecuteAddTable(object? parameter)
+        {
+            if (SelectedArea == null)
+            {
+                _dialogService.ShowWarning("Please select an area first!", "No Area Selected");
+                return;
+            }
+
+            try
+            {
+                var dialog = new Views.Dialogs.AddTableDialog();
+                var areas = new List<Area> { SelectedArea }; // Only current area
+                var viewModel = new Dialogs.AddTableDialogViewModel(areas);
+                viewModel.SelectedArea = SelectedArea; // Pre-select current area
+                dialog.DataContext = viewModel;
+
+                if (dialog.ShowDialog() == true && viewModel.DialogResult)
+                {
+                    if (viewModel.IsSingleMode)
+                    {
+                        // Single table mode
+                        var newTable = new Table
+                        {
+                            TableName = viewModel.TableName,
+                            AreaId = viewModel.SelectedArea.AreaId,
+                            Status = viewModel.SelectedStatus
+                        };
+
+                        _tableService.AddTable(newTable);
+                        _dialogService.ShowSuccess($"Table '{newTable.TableName}' added successfully!");
+                    }
+                    else
+                    {
+                        // Multiple tables mode
+                        for (int i = 1; i <= viewModel.NumberOfTables; i++)
+                        {
+                            var newTable = new Table
+                            {
+                                TableName = $"Table {i:D2}",
+                                AreaId = viewModel.SelectedArea.AreaId,
+                                Status = viewModel.SelectedStatus
+                            };
+
+                            _tableService.AddTable(newTable);
+                        }
+                        _dialogService.ShowSuccess($"{viewModel.NumberOfTables} tables added successfully!");
+                    }
+
+                    LoadTablesForSelectedArea();
+                    _ = LoadAreasAsync(); // Refresh to update table count
+                }
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError($"Failed to add table(s): {ex.Message}");
+            }
+        }
+
+        private void ExecuteEditTable(object? parameter)
+        {
+            if (parameter is not Table table)
+            {
+                if (SelectedTable == null)
+                {
+                    _dialogService.ShowWarning("Please select a table first!", "No Table Selected");
+                    return;
+                }
+                table = SelectedTable;
+            }
+
+            try
+            {
+                var dialog = new Views.Dialogs.EditTableDialog();
+                var tableViewModel = new ViewModels.Models.TableViewModel
+                {
+                    TableId = table.TableId,
+                    TableName = table.TableName,
+                    Status = table.Status,
+                    AreaId = table.AreaId,
+                    AreaName = SelectedArea?.AreaName ?? ""
+                };
+
+                var areas = Areas.ToList();
+                var viewModel = new Dialogs.EditTableDialogViewModel(tableViewModel, areas);
+                dialog.DataContext = viewModel;
+
+                if (dialog.ShowDialog() == true && viewModel.DialogResult)
+                {
+                    var updatedTable = new Table
+                    {
+                        TableId = table.TableId,
+                        TableName = viewModel.TableName,
+                        AreaId = viewModel.SelectedArea.AreaId,
+                        Status = viewModel.SelectedStatus
+                    };
+
+                    _tableService.UpdateTable(updatedTable);
+                    _dialogService.ShowSuccess($"Table '{updatedTable.TableName}' updated successfully!");
+                    LoadTablesForSelectedArea();
+                    _ = LoadAreasAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError($"Failed to update table: {ex.Message}");
+            }
+        }
+
+        private void ExecuteDeleteTable(object? parameter)
+        {
+            if (parameter is not Table table)
+            {
+                if (SelectedTable == null)
+                {
+                    _dialogService.ShowWarning("Please select a table first!", "No Table Selected");
+                    return;
+                }
+                table = SelectedTable;
+            }
+
+            var confirm = _dialogService.ShowConfirmation(
+                $"Are you sure you want to delete table '{table.TableName}'?\n\nThis action cannot be undone if the table has no orders.",
+                "Delete Table"
+            );
+
+            if (confirm)
+            {
+                try
+                {
+                    _tableService.DeleteTable(table.TableId);
+                    _dialogService.ShowSuccess($"Table '{table.TableName}' deleted successfully!");
+                    LoadTablesForSelectedArea();
+                    _ = LoadAreasAsync();
+                }
+                catch (Exception ex)
+                {
+                    _dialogService.ShowError($"Failed to delete table: {ex.Message}");
+                }
+            }
+        }
+
+        #endregion
 
         #endregion
     }

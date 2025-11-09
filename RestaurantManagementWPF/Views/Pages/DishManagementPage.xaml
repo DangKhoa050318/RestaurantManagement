@@ -77,7 +77,7 @@
                                         <Setter.Value>
                                             <VisualBrush Stretch="None" AlignmentX="Left">
                                                 <VisualBrush.Visual>
-                                                    <TextBlock Text="🔍 Search dishes..." 
+                                                    <TextBlock Text="Search dishes..." 
                                                               Foreground="#999999" 
                                                               Margin="10,0,0,0"/>
                                                 </VisualBrush.Visual>
@@ -148,7 +148,7 @@
                       CanUserAddRows="False"
                       RowHeight="60">
                 <DataGrid.Columns>
-                    <!-- Image Column - Simple emoji -->
+                    <!-- Image Column - Simple text -->
                     <DataGridTemplateColumn Header="Image" Width="80">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -158,8 +158,10 @@
                                         BorderThickness="1"
                                         CornerRadius="4"
                                         Margin="5">
-                                    <TextBlock Text="🍽️" 
-                                               FontSize="24"
+                                    <TextBlock Text="DISH" 
+                                               FontSize="10"
+                                               FontWeight="SemiBold"
+                                               Foreground="#999999"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
                                 </Border>
