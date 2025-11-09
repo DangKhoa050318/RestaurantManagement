@@ -29,6 +29,7 @@ namespace RestaurantManagementWPF.ViewModels
         private OrderItemViewModel? _selectedOrderItem;
 
         private decimal _totalAmount;
+        private int? _currentOrderId; // Track current order ID
 
         public POSViewModel()
         {
@@ -44,6 +45,7 @@ namespace RestaurantManagementWPF.ViewModels
             IncreaseQuantityCommand = new RelayCommand(ExecuteIncreaseQuantity);
             DecreaseQuantityCommand = new RelayCommand(ExecuteDecreaseQuantity);
             RemoveItemCommand = new RelayCommand(ExecuteRemoveItem);
+            SaveOrderCommand = new RelayCommand(ExecuteSaveOrder, _ => OrderItems.Count > 0 && SelectedTable != null);
             PaymentCommand = new RelayCommand(ExecutePayment, _ => OrderItems.Count > 0 && SelectedTable != null);
             ClearOrderCommand = new RelayCommand(ExecuteClearOrder, _ => OrderItems.Count > 0);
 
@@ -146,6 +148,7 @@ namespace RestaurantManagementWPF.ViewModels
         public ICommand IncreaseQuantityCommand { get; }
         public ICommand DecreaseQuantityCommand { get; }
         public ICommand RemoveItemCommand { get; }
+        public ICommand SaveOrderCommand { get; }
         public ICommand PaymentCommand { get; }
         public ICommand ClearOrderCommand { get; }
 
@@ -261,12 +264,71 @@ namespace RestaurantManagementWPF.ViewModels
             {
                 if (table.Status?.ToLower() == "using")
                 {
-                    _dialogService.ShowWarning("This table is currently in use!", "Table Occupied");
+                    // Table is occupied - load existing order
+                    var confirm = _dialogService.ShowConfirmation(
+                        $"Table {table.TableName} is currently in use.\nDo you want to load the existing order?",
+                        "Table In Use"
+                    );
+
+                    if (confirm)
+                    {
+                        SelectedTable = table;
+                        LoadExistingOrderForTable(table.TableId);
+                    }
                     return;
                 }
 
+                // Clear previous order when selecting empty table
+                OrderItems.Clear();
+                _currentOrderId = null;
+                CalculateTotal();
+                
                 SelectedTable = table;
                 _dialogService.ShowSuccess($"Selected table: {table.TableName}");
+            }
+        }
+
+        private void LoadExistingOrderForTable(int tableId)
+        {
+            try
+            {
+                var orderService = new global::Services.Implementations.OrderService();
+                var orders = orderService.GetOrdersByTableId(tableId);
+
+                // Find pending/scheduled order (not completed)
+                var pendingOrder = orders.FirstOrDefault(o => o.Status != "Completed" && o.Status != "Cancelled");
+
+                if (pendingOrder != null)
+                {
+                    _currentOrderId = pendingOrder.OrderId;
+
+                    // Load order details
+                    var orderDetailService = new global::Services.Implementations.OrderDetailService();
+                    var orderDetails = orderDetailService.GetOrderDetailsByOrderId(pendingOrder.OrderId);
+
+                    OrderItems.Clear();
+                    foreach (var detail in orderDetails)
+                    {
+                        OrderItems.Add(new OrderItemViewModel
+                        {
+                            DishId = detail.DishId,
+                            DishName = detail.Dish?.Name ?? "Unknown",
+                            Quantity = detail.Quantity,
+                            UnitPrice = detail.UnitPrice
+                        });
+                    }
+
+                    CalculateTotal();
+                    _dialogService.ShowSuccess($"Loaded existing order (ID: {pendingOrder.OrderId}) for table {SelectedTable.TableName}");
+                }
+                else
+                {
+                    _dialogService.ShowWarning($"No pending order found for table {SelectedTable.TableName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError($"Failed to load order: {ex.Message}");
             }
         }
 
@@ -349,13 +411,207 @@ namespace RestaurantManagementWPF.ViewModels
 
         private void ExecutePayment(object? parameter)
         {
-            // TODO: Open PaymentDialog
-            _dialogService.ShowMessage(
-                $"Payment functionality will be implemented next!\n\n" +
-                $"Table: {SelectedTableName}\n" +
-                $"Total: {TotalAmount:N0} VND",
-                "Payment"
-            );
+            if (SelectedTable == null || OrderItems.Count == 0)
+            {
+                _dialogService.ShowWarning("Please select a table and add items to order!", "Cannot Process Payment");
+                return;
+            }
+
+            try
+            {
+                // Open Payment Dialog
+                var dialog = new Views.Dialogs.PaymentDialog();
+                var viewModel = new Dialogs.PaymentDialogViewModel(
+                    SelectedTable.TableName,
+                    SelectedTable.AreaName,
+                    OrderItems,
+                    TotalAmount
+                );
+                dialog.DataContext = viewModel;
+
+                if (dialog.ShowDialog() == true && viewModel.DialogResult)
+                {
+                    // Process payment - Save order to database
+                    SaveOrderToDatabase();
+                }
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError($"Payment failed: {ex.Message}");
+            }
+        }
+
+        private void SaveOrderToDatabase()
+        {
+            try
+            {
+                // 1. Create Order
+                var newOrder = new Order
+                {
+                    TableId = SelectedTable.TableId,
+                    CustomerId = null, // Optional - can add customer selection later
+                    OrderTime = DateTime.Now,
+                    TotalAmount = TotalAmount,
+                    Status = "Completed"
+                };
+
+                // Save Order - OrderService will save it
+                var orderService = new global::Services.Implementations.OrderService();
+                orderService.AddOrder(newOrder);
+
+                // 2. Save Order Details
+                var orderDetailService = new global::Services.Implementations.OrderDetailService();
+                
+                foreach (var item in OrderItems)
+                {
+                    var orderDetail = new OrderDetail
+                    {
+                        OrderId = newOrder.OrderId, // After AddOrder, OrderId will be populated
+                        DishId = item.DishId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice
+                    };
+
+                    orderDetailService.AddOrderDetail(orderDetail);
+                }
+
+                // 3. Update Table Status to "Empty"
+                _tableService.UpdateTableStatus(SelectedTable.TableId, "Empty");
+
+                // 4. Show success message
+                _dialogService.ShowSuccess($"Payment completed successfully!\n\nOrder ID: {newOrder.OrderId}\nTotal: {TotalAmount:N0} VND");
+
+                // 5. Clear current order
+                OrderItems.Clear();
+                SelectedTable = null;
+                CalculateTotal();
+                CommandManager.InvalidateRequerySuggested();
+
+                // 6. Reload tables to update status
+                LoadTablesForArea();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to save order: {ex.Message}", ex);
+            }
+        }
+
+        private void ExecuteSaveOrder(object? parameter)
+        {
+            if (SelectedTable == null || OrderItems.Count == 0)
+            {
+                _dialogService.ShowWarning("Please select a table and add items to order!", "Cannot Save Order");
+                return;
+            }
+
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("=== ExecuteSaveOrder START ===");
+                System.Diagnostics.Debug.WriteLine($"Table: {SelectedTable.TableName}, Items: {OrderItems.Count}, CurrentOrderId: {_currentOrderId}");
+
+                var orderService = new global::Services.Implementations.OrderService();
+                var orderDetailService = new global::Services.Implementations.OrderDetailService();
+
+                if (_currentOrderId.HasValue)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Updating existing order: {_currentOrderId.Value}");
+                    
+                    // Update existing order
+                    var existingOrder = orderService.GetOrderById(_currentOrderId.Value);
+                    if (existingOrder != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Found existing order, deleting old details...");
+                        
+                        // Delete old order details
+                        var oldDetails = orderDetailService.GetOrderDetailsByOrderId(_currentOrderId.Value);
+                        System.Diagnostics.Debug.WriteLine($"Old details count: {oldDetails.Count}");
+						
+						if (oldDetails.Count > 0)
+						{
+							foreach (var detail in oldDetails)
+							{
+								System.Diagnostics.Debug.WriteLine($"Deleting detail ID: {detail.OrderDetailId}");
+								orderDetailService.DeleteOrderDetail(detail.OrderDetailId);
+							}
+						}
+
+                        System.Diagnostics.Debug.WriteLine("Adding new details...");
+                        // Add new order details
+                        foreach (var item in OrderItems)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Adding: {item.DishName} x {item.Quantity}");
+                            var orderDetail = new OrderDetail
+                            {
+                                OrderId = _currentOrderId.Value,
+                                DishId = item.DishId,
+                                Quantity = item.Quantity,
+                                UnitPrice = item.UnitPrice
+                            };
+                            orderDetailService.AddOrderDetail(orderDetail);
+                        }
+
+                        System.Diagnostics.Debug.WriteLine("Order updated successfully!");
+                        _dialogService.ShowSuccess($"Order updated successfully!\n\nOrder ID: {_currentOrderId.Value}");
+                        LoadTablesForArea();
+                        return;
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine("Creating new order...");
+                
+                // Create new order
+                var newOrder = new Order
+                {
+                    TableId = SelectedTable.TableId,
+                    CustomerId = null,
+                    OrderTime = DateTime.Now,
+                    TotalAmount = TotalAmount,
+                    Status = "Scheduled" // Changed from "Pending" to match DB constraint
+                };
+
+                System.Diagnostics.Debug.WriteLine($"Order data: TableId={newOrder.TableId}, Total={newOrder.TotalAmount}, Status={newOrder.Status}");
+                orderService.AddOrder(newOrder);
+                System.Diagnostics.Debug.WriteLine($"Order created with ID: {newOrder.OrderId}");
+
+                // Save Order Details
+                System.Diagnostics.Debug.WriteLine("Saving order details...");
+                foreach (var item in OrderItems)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Adding detail: {item.DishName} x {item.Quantity} @ {item.UnitPrice}");
+                    var orderDetail = new OrderDetail
+                    {
+                        OrderId = newOrder.OrderId,
+                        DishId = item.DishId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice
+                    };
+                    orderDetailService.AddOrderDetail(orderDetail);
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Updating table {SelectedTable.TableId} status to Using...");
+                // Update Table Status to "Using"
+                _tableService.UpdateTableStatus(SelectedTable.TableId, "Using");
+
+                // Track current order ID
+                _currentOrderId = newOrder.OrderId;
+                System.Diagnostics.Debug.WriteLine($"Tracked order ID: {_currentOrderId}");
+
+                _dialogService.ShowSuccess($"Order saved successfully!\nTable {SelectedTable.TableName} is now marked as 'Using'.\n\nOrder ID: {newOrder.OrderId}");
+                LoadTablesForArea();
+                
+                System.Diagnostics.Debug.WriteLine("=== ExecuteSaveOrder END ===");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"? ERROR in ExecuteSaveOrder: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Inner stack: {ex.InnerException.StackTrace}");
+                }
+                _dialogService.ShowError($"Failed to save order: {ex.Message}\n\nDetails: {ex.InnerException?.Message}");
+            }
         }
 
         private void ExecuteClearOrder(object? parameter)

@@ -193,9 +193,19 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0"
+                            Content="?? SAVE ORDER"
+                            Command="{Binding SaveOrderCommand}"
+                            Style="{StaticResource SuccessButton}"
+                            Height="50"
+                            FontSize="14"
+                            FontWeight="SemiBold"/>
+
+                    <Button Grid.Column="2"
                             Content="?? PAYMENT"
                             Command="{Binding PaymentCommand}"
                             Style="{StaticResource PrimaryButton}"
@@ -203,8 +213,8 @@
                             FontSize="16"
                             FontWeight="Bold"/>
 
-                    <Button Grid.Column="2"
-                            Content="??? CLEAR ORDER"
+                    <Button Grid.Column="4"
+                            Content="??? CLEAR"
                             Command="{Binding ClearOrderCommand}"
                             Style="{StaticResource DangerButton}"
                             Height="50"
