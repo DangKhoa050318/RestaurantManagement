@@ -12,9 +12,9 @@ namespace Services.Implementations
     {
         private readonly ICategoryRepository _categoryRepository;
 
-        public CategoryService()
+        public CategoryService(ICategoryRepository categoryRepository   )
         {
-            _categoryRepository = CategoryRepository.Instance;
+            _categoryRepository = categoryRepository;
         }
 
         public List<Category> GetCategories() => _categoryRepository.GetCategories();

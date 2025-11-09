@@ -2,7 +2,7 @@ using RestaurantManagementWPF.Helpers;
 using Services.Implementations;
 using System.Windows.Input;
 using System.Threading.Tasks;
-
+using DataAccessLayer.Repositories.Implementations;
 namespace RestaurantManagementWPF.ViewModels
 {
     public class DashboardViewModel : BaseViewModel
@@ -19,9 +19,9 @@ namespace RestaurantManagementWPF.ViewModels
 
         public DashboardViewModel()
         {
-            _tableService = new TableService();
+            _tableService = new TableService(TableRepository.Instance);
             _orderService = new OrderService();
-            _dishService = new DishService();
+            _dishService = new DishService(DishRepository.Instance);
 
             // Commands
             NavigateToPOSCommand = new RelayCommand(_ => NavigateTo("POS"));

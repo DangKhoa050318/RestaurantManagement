@@ -62,7 +62,7 @@ namespace Services.Implementations
 
         public void UpdateOrderStatus(int orderId, string newStatus)
         {
-            var validStatuses = new[] { "Pending", "In Progress", "Completed", "Cancelled" }; 
+            var validStatuses = new[] { "In Progress", "Completed", "Cancelled" }; 
             if (!validStatuses.Contains(newStatus))
                 throw new ArgumentException($"Invalid status. Valid options: {string.Join(", ", validStatuses)}");
 

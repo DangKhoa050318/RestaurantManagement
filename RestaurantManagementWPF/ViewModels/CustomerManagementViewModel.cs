@@ -6,7 +6,7 @@ using RestaurantManagementWPF.ViewModels.Dialogs;
 using Services.Implementations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-
+using DataAccessLayer.Repositories.Implementations;
 namespace RestaurantManagementWPF.ViewModels
 {
     public class CustomerManagementViewModel : BaseViewModel
@@ -22,7 +22,7 @@ namespace RestaurantManagementWPF.ViewModels
 
         public CustomerManagementViewModel()
         {
-            _customerService = new CustomerService();
+            _customerService = new CustomerService(CustomerRepository.Instance);
             _dialogService = new DialogService();
 
             // Commands

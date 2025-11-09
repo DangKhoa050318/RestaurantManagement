@@ -5,6 +5,7 @@ using RestaurantManagementWPF.Services;
 using Services.Implementations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using DataAccessLayer.Repositories.Implementations;
 
 namespace RestaurantManagementWPF.ViewModels
 {
@@ -21,8 +22,8 @@ namespace RestaurantManagementWPF.ViewModels
 
         public AreaManagementViewModel()
         {
-            _areaService = new AreaService();
-            _tableService = new TableService();
+            _areaService = new AreaService(AreaRepository.Instance);
+            _tableService = new TableService(TableRepository.Instance);
             _dialogService = new DialogService();
 
             // Commands

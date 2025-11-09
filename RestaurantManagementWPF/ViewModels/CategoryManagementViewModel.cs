@@ -4,7 +4,7 @@ using RestaurantManagementWPF.Services;
 using Services.Implementations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-
+using DataAccessLayer.Repositories.Implementations;
 namespace RestaurantManagementWPF.ViewModels
 {
     public class CategoryManagementViewModel : BaseViewModel
@@ -19,7 +19,7 @@ namespace RestaurantManagementWPF.ViewModels
 
         public CategoryManagementViewModel()
         {
-            _categoryService = new CategoryService();
+            _categoryService = new CategoryService(CategoryRepository.Instance);
             _dialogService = new DialogService();
 
             // Commands
