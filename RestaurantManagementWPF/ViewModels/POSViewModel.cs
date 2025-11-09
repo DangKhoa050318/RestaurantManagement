@@ -22,11 +22,13 @@ namespace RestaurantManagementWPF.ViewModels
         private ObservableCollection<Category> _categories = new();
         private ObservableCollection<Dish> _dishes = new();
         private ObservableCollection<OrderItemViewModel> _orderItems = new();
+        private ObservableCollection<Customer> _customers = new();
 
         private Area? _selectedArea;
         private TableViewModel? _selectedTable;
         private Category? _selectedCategory;
         private OrderItemViewModel? _selectedOrderItem;
+        private Customer? _selectedCustomer;
 
         private decimal _totalAmount;
         private int? _currentOrderId; // Track current order ID
@@ -45,6 +47,7 @@ namespace RestaurantManagementWPF.ViewModels
             IncreaseQuantityCommand = new RelayCommand(ExecuteIncreaseQuantity);
             DecreaseQuantityCommand = new RelayCommand(ExecuteDecreaseQuantity);
             RemoveItemCommand = new RelayCommand(ExecuteRemoveItem);
+            AddCustomerCommand = new RelayCommand(ExecuteAddCustomer);
             SaveOrderCommand = new RelayCommand(ExecuteSaveOrder, _ => OrderItems.Count > 0 && SelectedTable != null);
             PaymentCommand = new RelayCommand(ExecutePayment, _ => OrderItems.Count > 0 && SelectedTable != null);
             ClearOrderCommand = new RelayCommand(ExecuteClearOrder, _ => OrderItems.Count > 0);
@@ -52,6 +55,7 @@ namespace RestaurantManagementWPF.ViewModels
             // Load data
             LoadAreas();
             LoadCategories();
+            LoadCustomers();
         }
 
         #region Properties
@@ -84,6 +88,12 @@ namespace RestaurantManagementWPF.ViewModels
         {
             get => _orderItems;
             set => SetProperty(ref _orderItems, value);
+        }
+
+        public ObservableCollection<Customer> Customers
+        {
+            get => _customers;
+            set => SetProperty(ref _customers, value);
         }
 
         public Area? SelectedArea
@@ -130,6 +140,12 @@ namespace RestaurantManagementWPF.ViewModels
             set => SetProperty(ref _selectedOrderItem, value);
         }
 
+        public Customer? SelectedCustomer
+        {
+            get => _selectedCustomer;
+            set => SetProperty(ref _selectedCustomer, value);
+        }
+
         public decimal TotalAmount
         {
             get => _totalAmount;
@@ -151,6 +167,7 @@ namespace RestaurantManagementWPF.ViewModels
         public ICommand SaveOrderCommand { get; }
         public ICommand PaymentCommand { get; }
         public ICommand ClearOrderCommand { get; }
+        public ICommand AddCustomerCommand { get; }
 
         #endregion
 
@@ -255,6 +272,31 @@ namespace RestaurantManagementWPF.ViewModels
             catch (Exception ex)
             {
                 _dialogService.ShowError($"Error loading dishes: {ex.Message}");
+            }
+        }
+
+        private void LoadCustomers()
+        {
+            try
+            {
+                var customerService = new global::Services.Implementations.CustomerService();
+                var customers = customerService.GetCustomers();
+                Customers.Clear();
+                
+                // Add "No Customer" option
+                Customers.Add(new Customer { CustomerId = 0, Fullname = "Walk-in Customer" });
+                
+                foreach (var customer in customers)
+                {
+                    Customers.Add(customer);
+                }
+
+                // Default to walk-in
+                SelectedCustomer = Customers[0];
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError($"Error loading customers: {ex.Message}");
             }
         }
 
@@ -445,49 +487,80 @@ namespace RestaurantManagementWPF.ViewModels
         {
             try
             {
-                // 1. Create Order
+                var orderService = new global::Services.Implementations.OrderService();
+                var orderDetailService = new global::Services.Implementations.OrderDetailService();
+
+                if (_currentOrderId.HasValue)
+                {
+                    // UPDATE existing order to Completed
+                    System.Diagnostics.Debug.WriteLine($"Updating existing order {_currentOrderId.Value} to Completed");
+                    
+                    var existingOrder = orderService.GetOrderById(_currentOrderId.Value);
+                    if (existingOrder != null)
+                    {
+                        // Update status to Completed
+                        orderService.UpdateOrderStatus(_currentOrderId.Value, "Completed");
+
+                        // Update Table Status to "Empty"
+                        _tableService.UpdateTableStatus(SelectedTable.TableId, "Empty");
+
+                        // Show success message
+                        _dialogService.ShowSuccess($"Payment completed successfully!\n\nOrder ID: {_currentOrderId.Value}\nTotal: {TotalAmount:N0} VND");
+
+                        // Clear current order
+                        OrderItems.Clear();
+                        _currentOrderId = null;
+                        SelectedTable = null;
+                        CalculateTotal();
+                        CommandManager.InvalidateRequerySuggested();
+
+                        // Reload tables to update status
+                        LoadTablesForArea();
+                        return;
+                    }
+                }
+
+                // CREATE new order (if no existing order - walk-in payment without save)
+                System.Diagnostics.Debug.WriteLine("Creating new completed order (direct payment)");
+                
                 var newOrder = new Order
                 {
                     TableId = SelectedTable.TableId,
-                    CustomerId = null, // Optional - can add customer selection later
+                    CustomerId = (SelectedCustomer != null && SelectedCustomer.CustomerId > 0) ? SelectedCustomer.CustomerId : null,
                     OrderTime = DateTime.Now,
                     TotalAmount = TotalAmount,
                     Status = "Completed"
                 };
 
-                // Save Order - OrderService will save it
-                var orderService = new global::Services.Implementations.OrderService();
                 orderService.AddOrder(newOrder);
 
-                // 2. Save Order Details
-                var orderDetailService = new global::Services.Implementations.OrderDetailService();
-                
+                // Save Order Details
                 foreach (var item in OrderItems)
                 {
                     var orderDetail = new OrderDetail
                     {
-                        OrderId = newOrder.OrderId, // After AddOrder, OrderId will be populated
+                        OrderId = newOrder.OrderId,
                         DishId = item.DishId,
                         Quantity = item.Quantity,
                         UnitPrice = item.UnitPrice
                     };
-
                     orderDetailService.AddOrderDetail(orderDetail);
                 }
 
-                // 3. Update Table Status to "Empty"
+                // Update Table Status to "Empty"
                 _tableService.UpdateTableStatus(SelectedTable.TableId, "Empty");
 
-                // 4. Show success message
+                // Show success message
                 _dialogService.ShowSuccess($"Payment completed successfully!\n\nOrder ID: {newOrder.OrderId}\nTotal: {TotalAmount:N0} VND");
 
-                // 5. Clear current order
+                // Clear current order
                 OrderItems.Clear();
                 SelectedTable = null;
+                _currentOrderId = null;
                 CalculateTotal();
                 CommandManager.InvalidateRequerySuggested();
 
-                // 6. Reload tables to update status
+                // Reload tables to update status
                 LoadTablesForArea();
             }
             catch (Exception ex)
@@ -563,7 +636,7 @@ namespace RestaurantManagementWPF.ViewModels
                 var newOrder = new Order
                 {
                     TableId = SelectedTable.TableId,
-                    CustomerId = null,
+                    CustomerId = (SelectedCustomer != null && SelectedCustomer.CustomerId > 0) ? SelectedCustomer.CustomerId : null,
                     OrderTime = DateTime.Now,
                     TotalAmount = TotalAmount,
                     Status = "Scheduled" // Changed from "Pending" to match DB constraint
@@ -627,6 +700,37 @@ namespace RestaurantManagementWPF.ViewModels
                 SelectedTable = null;
                 CalculateTotal();
                 CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
+        private void ExecuteAddCustomer(object? parameter)
+        {
+            try
+            {
+                var dialog = new Views.Dialogs.AddCustomerDialog();
+                var viewModel = new Dialogs.AddCustomerDialogViewModel();
+                dialog.DataContext = viewModel;
+
+                if (dialog.ShowDialog() == true && viewModel.DialogResult)
+                {
+                    var customerService = new global::Services.Implementations.CustomerService();
+                    var newCustomer = new Customer
+                    {
+                        Fullname = viewModel.CustomerName,
+                        Phone = string.IsNullOrWhiteSpace(viewModel.PhoneNumber) ? null : viewModel.PhoneNumber
+                    };
+
+                    customerService.AddCustomer(newCustomer);
+                    _dialogService.ShowSuccess($"Customer '{newCustomer.Fullname}' added successfully!");
+                    
+                    // Reload customers and select the new one
+                    LoadCustomers();
+                    SelectedCustomer = Customers.FirstOrDefault(c => c.Fullname == newCustomer.Fullname);
+                }
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError($"Failed to add customer: {ex.Message}");
             }
         }
 
