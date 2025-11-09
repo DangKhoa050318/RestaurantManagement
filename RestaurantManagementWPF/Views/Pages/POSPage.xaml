@@ -52,16 +52,57 @@
                         Padding="10"
                         CornerRadius="4"
                         Margin="0,0,0,10">
-                    <StackPanel>
-                        <TextBlock FontSize="13" Foreground="#666666">
-                            <Run Text="Table: "/>
-                            <Run Text="{Binding SelectedTableName, Mode=OneWay, FallbackValue='Not selected'}" FontWeight="SemiBold" Foreground="#333333"/>
-                        </TextBlock>
-                        <TextBlock FontSize="13" Foreground="#666666" Margin="0,5,0,0">
-                            <Run Text="Area: "/>
-                            <Run Text="{Binding SelectedAreaName, Mode=OneWay, FallbackValue='-'}" FontWeight="SemiBold" Foreground="#333333"/>
-                        </TextBlock>
-                    </StackPanel>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Table & Area Info -->
+                        <StackPanel Grid.Row="0">
+                            <TextBlock FontSize="13" Foreground="#666666">
+                                <Run Text="Table: "/>
+                                <Run Text="{Binding SelectedTableName, Mode=OneWay, FallbackValue='Not selected'}" FontWeight="SemiBold" Foreground="#333333"/>
+                            </TextBlock>
+                            <TextBlock FontSize="13" Foreground="#666666" Margin="0,5,0,0">
+                                <Run Text="Area: "/>
+                                <Run Text="{Binding SelectedAreaName, Mode=OneWay, FallbackValue='-'}" FontWeight="SemiBold" Foreground="#333333"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <Separator Grid.Row="1" Background="#E0E0E0"/>
+
+                        <!-- Customer Selection (Optional) -->
+                        <StackPanel Grid.Row="2">
+                            <TextBlock Text="Customer (Optional):" 
+                                       FontSize="12" 
+                                       Foreground="#666666"
+                                       Margin="0,0,0,5"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ComboBox Grid.Column="0"
+                                         ItemsSource="{Binding Customers}"
+                                         SelectedItem="{Binding SelectedCustomer}"
+                                         DisplayMemberPath="Fullname"
+                                         FontSize="12"
+                                         Padding="8,4"/>
+
+                                <Button Grid.Column="2"
+                                       Content="+ New"
+                                       Command="{Binding AddCustomerCommand}"
+                                       Style="{StaticResource SecondaryButton}"
+                                       FontSize="11"
+                                       Padding="8,4"
+                                       Height="26"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
                 </Border>
 
                 <!-- Order Items DataGrid -->
