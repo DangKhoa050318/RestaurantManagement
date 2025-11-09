@@ -28,7 +28,7 @@ CREATE TABLE tables (
 	AreaId INT NOT NULL,
     TableName VARCHAR(10) NOT NULL,
     Status VARCHAR(20) NOT NULL 
-        CHECK (Status IN ('Empty', 'Booked', 'Using', 'Maintenance')),
+        CHECK (Status IN ('Empty', 'Using', 'Maintenance')),
 	FOREIGN KEY (AreaId) REFERENCES areas(AreaId) ON DELETE CASCADE ON UPDATE CASCADE
 );
 GO
@@ -59,6 +59,7 @@ CREATE TABLE orders (
     TableId INT NULL,
     CustomerId INT NULL,
     OrderTime DATETIME NOT NULL DEFAULT GETDATE(),
+	PaymentTime DATETIME NULL DEFAULT GETDATE(),
     Status VARCHAR(15) NOT NULL DEFAULT 'Scheduled'
         CHECK (Status IN ('Scheduled', 'Completed', 'Cancelled')),
     TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0
@@ -83,11 +84,11 @@ CREATE TABLE orderdetails (
 
     FOREIGN KEY (OrderId)
         REFERENCES orders(OrderId)
-        ON DELETE CASCADE ON UPDATE CASCADE,
+        ON DELETE CASCADE,
 
     FOREIGN KEY (DishId)
         REFERENCES dishes(DishId)
-        ON DELETE CASCADE ON UPDATE CASCADE
+        ON DELETE CASCADE
 );
 GO
 
@@ -98,7 +99,9 @@ VALUES
 (N'Trần Thị B', '0912345678'),
 (N'Lê Văn C', '0987654321'),
 (N'Phạm Thị D', '0977123123'),
-(N'Hoàng Văn E', '0934567890');
+(N'Hoàng Văn E', '0934567890'),
+(N'Nguyễn Văn An', '0901234567'),
+(N'Lê Thị Hoa', '0902345678');
 GO
 
 INSERT INTO areas (AreaName, AreaStatus)
@@ -113,7 +116,7 @@ INSERT INTO tables (AreaId, TableName, Status)
 VALUES
 (1, 'A01', 'Empty'),
 (1, 'A02', 'Using'),
-(2, 'B01', 'Booked'),
+(2, 'B01', 'Using'),
 (2, 'B02', 'Empty'),
 (3, 'VIP1', 'Using'),
 (4, 'G01', 'Maintenance');
@@ -143,31 +146,27 @@ VALUES
 (4, N'Bia Heineken', 35000, 'chai', N'Thức uống dành cho bữa tiệc', 'images/heineken.jpg');
 GO
 
-INSERT INTO orders (TableId, CustomerId, OrderTime, Status, TotalAmount)
+INSERT INTO orders (TableId, CustomerId, OrderTime, PaymentTime, Status, TotalAmount)
 VALUES
-(2, 1, GETDATE(), 'Completed', 250000),
-(3, 2, GETDATE(), 'Scheduled', 0),
-(5, 3, DATEADD(HOUR, -3, GETDATE()), 'Completed', 350000),
-(1, 4, DATEADD(DAY, -1, GETDATE()), 'Cancelled', 0),
-(2, 5, DATEADD(HOUR, -5, GETDATE()), 'Completed', 180000);
+(1, 1, GETDATE(), null, 'Completed', 150000),
+(2, 2, GETDATE(), null, 'Completed', 95000),
+(3, 3, GETDATE(), null, 'Scheduled', 0),
+(6, 4, GETDATE(), null, 'Completed', 175000),
+(4, 5, GETDATE(), null, 'Cancelled', 0);
 GO
 
 INSERT INTO orderdetails (OrderId, DishId, Quantity, UnitPrice)
 VALUES
--- Đơn hàng 1 (250k)
-(1, 3, 2, 65000),     -- Cơm chiên dương châu
-(1, 8, 2, 20000),     -- Coca
-(1, 7, 1, 35000),     -- Trà trái cây
-
--- Đơn hàng 3 (350k)
-(3, 4, 1, 180000),    -- Lẩu thái
-(3, 5, 1, 120000),    -- Bò lúc lắc
-(3, 9, 1, 35000),     -- Bia Heineken
-
--- Đơn hàng 5 (180k)
-(5, 2, 1, 55000),     -- Súp hải sản
-(5, 3, 1, 65000),     -- Cơm chiên
-(5, 6, 1, 40000);     -- Chè khúc bạch
+(1, 1, 2, 35000),  -- 70,000
+(1, 3, 1, 65000),  -- 65,000
+(1, 7, 1, 25000),  -- 25,000 -> Total 160,000 (thực tế 150k sau khuyến mãi)
+(2, 4, 1, 89000),  -- 89,000
+(2, 8, 1, 40000),  -- 40,000
+(3, 2, 2, 45000),  -- Chưa thanh toán
+(4, 5, 2, 35000),  -- 70,000
+(4, 6, 1, 30000),  -- 30,000
+(4, 8, 2, 40000),  -- 80,000 -> Total 180k
+(5, 1, 1, 35000);  -- Đơn bị hủy
 GO
 
 -- ============== SELECT =====================
@@ -181,3 +180,4 @@ select * from orderdetails;
 
 drop table dishes;
 drop table orders;
+drop table orderdetails;
