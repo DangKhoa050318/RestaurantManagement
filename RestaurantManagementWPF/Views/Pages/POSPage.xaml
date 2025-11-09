@@ -1,0 +1,422 @@
+<Page x:Class="RestaurantManagementWPF.Views.Pages.POSPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:vm="clr-namespace:RestaurantManagementWPF.ViewModels"
+      mc:Ignorable="d"
+      d:DesignHeight="700" d:DesignWidth="1200"
+      Title="Point of Sale"
+      Background="White">
+
+    <Page.DataContext>
+        <vm:POSViewModel/>
+    </Page.DataContext>
+
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <!-- Left Panel: Order Items -->
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="20"/>
+            <!-- Right Panel: Table & Menu Selection -->
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ==================== LEFT PANEL: ORDER ITEMS ==================== -->
+        <Border Grid.Column="0"
+                Background="White"
+                BorderBrush="#E0E0E0"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Title -->
+                <TextBlock Grid.Row="0"
+                           Text="Current Order"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="#333333"
+                           Margin="0,0,0,15"/>
+
+                <!-- Table Info -->
+                <Border Grid.Row="1"
+                        Background="#F5F5F5"
+                        Padding="10"
+                        CornerRadius="4"
+                        Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Table & Area Info -->
+                        <StackPanel Grid.Row="0">
+                            <TextBlock FontSize="13" Foreground="#666666">
+                                <Run Text="Table: "/>
+                                <Run Text="{Binding SelectedTableName, Mode=OneWay, FallbackValue='Not selected'}" FontWeight="SemiBold" Foreground="#333333"/>
+                            </TextBlock>
+                            <TextBlock FontSize="13" Foreground="#666666" Margin="0,5,0,0">
+                                <Run Text="Area: "/>
+                                <Run Text="{Binding SelectedAreaName, Mode=OneWay, FallbackValue='-'}" FontWeight="SemiBold" Foreground="#333333"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <Separator Grid.Row="1" Background="#E0E0E0"/>
+
+                        <!-- Customer Selection (Optional) -->
+                        <StackPanel Grid.Row="2">
+                            <TextBlock Text="Customer (Optional):" 
+                                       FontSize="12" 
+                                       Foreground="#666666"
+                                       Margin="0,0,0,5"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ComboBox Grid.Column="0"
+                                         ItemsSource="{Binding Customers}"
+                                         SelectedItem="{Binding SelectedCustomer}"
+                                         DisplayMemberPath="Fullname"
+                                         FontSize="12"
+                                         Padding="8,4"/>
+
+                                <Button Grid.Column="2"
+                                       Content="+ New"
+                                       Command="{Binding AddCustomerCommand}"
+                                       Style="{StaticResource SecondaryButton}"
+                                       FontSize="11"
+                                       Padding="8,4"
+                                       Height="26"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Order Items DataGrid -->
+                <Border Grid.Row="2"
+                        BorderBrush="#E0E0E0"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                    <DataGrid ItemsSource="{Binding OrderItems}"
+                              SelectedItem="{Binding SelectedOrderItem}"
+                              Style="{StaticResource ModernDataGrid}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              RowHeight="45">
+                        <DataGrid.Columns>
+                            <!-- STT -->
+                            <DataGridTextColumn Header="No." 
+                                               Width="50"
+                                               IsReadOnly="True">
+                                <DataGridTextColumn.Binding>
+                                    <Binding RelativeSource="{RelativeSource AncestorType=DataGridRow}" 
+                                             Converter="{StaticResource RowIndexConverter}"/>
+                                </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+
+                            <!-- Dish Name -->
+                            <DataGridTextColumn Header="Dish Name" 
+                                               Binding="{Binding DishName}"
+                                               Width="2*"
+                                               IsReadOnly="True"/>
+
+                            <!-- Quantity -->
+                            <DataGridTemplateColumn Header="Qty" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Content="-" 
+                                                    Width="25" Height="25"
+                                                    Command="{Binding DataContext.DecreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    FontSize="12"
+                                                    Padding="0"/>
+                                            <TextBlock Text="{Binding Quantity}" 
+                                                      Width="30"
+                                                      TextAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      FontWeight="SemiBold"
+                                                      Margin="5,0"/>
+                                            <Button Content="+" 
+                                                    Width="25" Height="25"
+                                                    Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource PrimaryButton}"
+                                                    FontSize="12"
+                                                    Padding="0"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Unit Price -->
+                            <DataGridTextColumn Header="Price" 
+                                               Binding="{Binding UnitPrice, StringFormat={}{0:N0}}"
+                                               Width="*"
+                                               IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Subtotal -->
+                            <DataGridTextColumn Header="Total" 
+                                               Binding="{Binding Subtotal, StringFormat={}{0:N0}}"
+                                               Width="*"
+                                               IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Remove Button -->
+                            <DataGridTemplateColumn Header="" Width="50">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="X" 
+                                                Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource DangerButton}"
+                                                Width="30" Height="30"
+                                                FontSize="14"
+                                                FontWeight="Bold"
+                                                Padding="0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+
+                <!-- Total Amount -->
+                <Border Grid.Row="3"
+                        Background="#F0F8FF"
+                        Padding="15"
+                        CornerRadius="4"
+                        Margin="0,15,0,0">
+                    <Grid>
+                        <TextBlock Text="TOTAL AMOUNT:"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="#333333"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:N0} VND}"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryBrush}"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Action Buttons -->
+                <Grid Grid.Row="4" Margin="0,15,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            Content="SAVE ORDER"
+                            Command="{Binding SaveOrderCommand}"
+                            Style="{StaticResource SuccessButton}"
+                            Height="50"
+                            FontSize="14"
+                            FontWeight="SemiBold"/>
+
+                    <Button Grid.Column="2"
+                            Content="PAYMENT"
+                            Command="{Binding PaymentCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            Height="50"
+                            FontSize="16"
+                            FontWeight="Bold"/>
+
+                    <Button Grid.Column="4"
+                            Content="CLEAR"
+                            Command="{Binding ClearOrderCommand}"
+                            Style="{StaticResource DangerButton}"
+                            Height="50"
+                            FontSize="14"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ==================== RIGHT PANEL: TABLE & MENU ==================== -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Area Selection -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                <TextBlock Text="Select Area &amp; Table"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="#333333"
+                           Margin="0,0,0,10"/>
+                
+                <ComboBox ItemsSource="{Binding Areas}"
+                          SelectedItem="{Binding SelectedArea}"
+                          DisplayMemberPath="AreaName"
+                          FontSize="14"
+                          Padding="10,8"/>
+            </StackPanel>
+
+            <!-- Tab Control: Tables & Menu -->
+            <TabControl Grid.Row="1"
+                        Style="{StaticResource {x:Type TabControl}}">
+                
+                <!-- Tab 1: Tables -->
+                <TabItem Header="Tables" FontSize="14">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Tables}"
+                                     Margin="10">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- Table Card -->
+                                    <Border Width="120" Height="120"
+                                            Background="{Binding StatusColor}"
+                                            BorderBrush="#E0E0E0"
+                                            BorderThickness="2"
+                                            CornerRadius="8"
+                                            Margin="5"
+                                            Cursor="Hand">
+                                        <Border.InputBindings>
+                                            <MouseBinding Command="{Binding DataContext.SelectTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                         CommandParameter="{Binding}"
+                                                         MouseAction="LeftClick"/>
+                                        </Border.InputBindings>
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding TableName}"
+                                                      FontSize="20"
+                                                      FontWeight="Bold"
+                                                      Foreground="#333333"
+                                                      HorizontalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Status}"
+                                                      FontSize="12"
+                                                      Foreground="#666666"
+                                                      HorizontalAlignment="Center"
+                                                      Margin="0,5,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Tab 2: Menu -->
+                <TabItem Header="Menu" FontSize="14">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Category Filter -->
+                        <ComboBox Grid.Row="0"
+                                 ItemsSource="{Binding Categories}"
+                                 SelectedItem="{Binding SelectedCategory}"
+                                 DisplayMemberPath="Name"
+                                 FontSize="14"
+                                 Padding="10,8"
+                                 Margin="10,10,10,15"/>
+
+                        <!-- Dish List -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Dishes}"
+                                         Margin="10">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!-- Dish Card -->
+                                        <Border Width="150" Height="180"
+                                                Background="White"
+                                                BorderBrush="#E0E0E0"
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                Margin="5"
+                                                Cursor="Hand">
+                                            <Border.InputBindings>
+                                                <MouseBinding Command="{Binding DataContext.AddDishCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                             CommandParameter="{Binding}"
+                                                             MouseAction="LeftClick"/>
+                                            </Border.InputBindings>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="100"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Dish Image Placeholder -->
+                                                <Border Grid.Row="0"
+                                                        Background="#F5F5F5"
+                                                        CornerRadius="8,8,0,0">
+                                                    <TextBlock Text="DISH"
+                                                              FontSize="16"
+                                                              FontWeight="SemiBold"
+                                                              Foreground="#CCCCCC"
+                                                              HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"/>
+                                                </Border>
+
+                                                <!-- Dish Info -->
+                                                <StackPanel Grid.Row="1" Margin="10">
+                                                    <TextBlock Text="{Binding Name}"
+                                                              FontSize="14"
+                                                              FontWeight="SemiBold"
+                                                              Foreground="#333333"
+                                                              TextTrimming="CharacterEllipsis"
+                                                              TextWrapping="NoWrap"/>
+                                                    <TextBlock Text="{Binding Price, StringFormat={}{0:N0} VND}"
+                                                              FontSize="13"
+                                                              Foreground="{StaticResource PrimaryBrush}"
+                                                              FontWeight="SemiBold"
+                                                              Margin="0,5,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Grid>
+</Page>

@@ -71,7 +71,7 @@ namespace DataAccessLayer
             {
                 entity.HasKey(e => e.DishId).HasName("PK__dishs__18834F505B455D73");
 
-                entity.ToTable("dishes");
+                entity.ToTable("dishs");
 
                 entity.Property(e => e.Description).HasMaxLength(250);
                 entity.Property(e => e.ImgUrl)
@@ -99,11 +99,19 @@ namespace DataAccessLayer
                 entity.Property(e => e.OrderTime)
                     .HasDefaultValueSql("(getdate())")
                     .HasColumnType("datetime");
+                
+                // ✅ PaymentTime - nullable
+                entity.Property(e => e.PaymentTime)
+                    .HasColumnType("datetime")
+                    .IsRequired(false);
+                
                 entity.Property(e => e.Status)
                     .HasMaxLength(15)
                     .IsUnicode(false)
                     .HasDefaultValue("Scheduled");
-                entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
+                
+                entity.Property(e => e.TotalAmount)
+                    .HasColumnType("decimal(10, 2)");
 
                 entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                     .HasForeignKey(d => d.CustomerId)
@@ -114,10 +122,6 @@ namespace DataAccessLayer
                     .HasForeignKey(d => d.TableId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK__orders__TableId__398D8EEE");
-                entity.HasOne(o => o.Customer)
-              .WithMany(c => c.Orders)
-              .HasForeignKey(o => o.CustomerId)
-              .OnDelete(DeleteBehavior.SetNull);
             });
 
             // 5. Ánh xạ Class 'OrderDetail' sang bảng 'orderdetails'

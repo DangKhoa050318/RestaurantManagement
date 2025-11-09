@@ -110,7 +110,7 @@
                     BorderBrush="#E0E0E0"
                     BorderThickness="0,0,1,0">
                 <StackPanel Margin="0,20,0,0">
-                    
+
                     <!-- Dashboard -->
                     <Button Command="{Binding NavigateCommand}"
                             CommandParameter="Dashboard"
@@ -178,6 +178,15 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#128202;" FontSize="20" Margin="0,0,15,0"/>
                             <TextBlock Text="Order Report" FontSize="14"/>
+                        </StackPanel>
+                    </Button>
+                    <!-- Chatbot Assistant -->
+                    <Button Command="{Binding NavigateCommand}"
+        CommandParameter="Chatbot"
+        Style="{StaticResource MenuButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🤖" FontSize="20" Margin="0,0,15,0"/>
+                            <TextBlock Text="AI Assistant" FontSize="14"/>
                         </StackPanel>
                     </Button>
 

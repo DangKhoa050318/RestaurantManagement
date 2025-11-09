@@ -12,9 +12,9 @@ namespace Services.Implementations
     {
         private readonly IDishRepository _dishRepository;
 
-        public DishService()
+        public DishService(IDishRepository dishRepository)
         {
-            _dishRepository = DishRepository.Instance;
+            _dishRepository = dishRepository;
         }
 
         public List<Dish> GetDishes() => _dishRepository.GetDish();
@@ -25,16 +25,29 @@ namespace Services.Implementations
 
         public void AddDish(Dish dish)
         {
+            System.Diagnostics.Debug.WriteLine($"🔹 DishService.AddDish called with: Name='{dish.Name}', Price={dish.Price}, CategoryId={dish.CategoryId}, Unit='{dish.UnitOfCalculation}'");
+            
             if (string.IsNullOrWhiteSpace(dish.Name))
+            {
+                System.Diagnostics.Debug.WriteLine("❌ Validation failed: Dish name is empty");
                 throw new ArgumentException("Dish name cannot be empty.");
+            }
 
             if (dish.Price <= 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Validation failed: Dish price {dish.Price} <= 0");
                 throw new ArgumentException("Dish price must be greater than zero.");
+            }
 
             if (string.IsNullOrWhiteSpace(dish.UnitOfCalculation))
+            {
+                System.Diagnostics.Debug.WriteLine("⚠️ Unit is empty, setting default to 'portion'");
                 dish.UnitOfCalculation = "portion"; // Đặt giá trị mặc định
+            }
 
+            System.Diagnostics.Debug.WriteLine("✅ Validation passed, calling repository...");
             _dishRepository.AddDish(dish);
+            System.Diagnostics.Debug.WriteLine("✅ Repository.AddDish completed");
         }
 
         public void UpdateDish(Dish dish)
