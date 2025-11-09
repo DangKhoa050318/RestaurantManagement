@@ -21,6 +21,17 @@ namespace Services.Implementations
         public Order GetOrderById(int id) => _orderRepository.GetOrderById(id);
         public List<Order> GetOrdersByCustomerId(int customerId) => _orderRepository.GetOrdersByCustomerId(customerId);
         public List<Order> GetOrdersByTableId(int tableId) => _orderRepository.GetOrdersByTableId(tableId);
+        
+        /// <summary>
+        /// Get orders within a date range
+        /// </summary>
+        public List<Order> GetOrdersByDateRange(DateTime startDate, DateTime endDate)
+        {
+            if (startDate > endDate)
+                throw new ArgumentException("Start date must be before or equal to end date.");
+
+            return _orderRepository.GetOrdersByDateRange(startDate, endDate);
+        }
 
         public void AddOrder(Order order)
         {
