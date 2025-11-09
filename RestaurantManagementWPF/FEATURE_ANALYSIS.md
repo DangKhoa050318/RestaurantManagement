@@ -10,8 +10,12 @@
 - ✅ Table (TableId, TableName, Status, AreaId)
 - ✅ Category (CategoryId, CategoryName, CategoryDescription)
 - ✅ Dish (DishId, Name, Price, Description, UnitOfCalculation, ImgUrl, CategoryId)
-- ✅ Order (OrderId, CustomerId, TableId, OrderTime, TotalAmount, Status)
+- ✅ Order (OrderId, CustomerId, TableId, OrderTime, PaymentTime, TotalAmount, Status)
 - ✅ OrderDetail (OrderDetailId, OrderId, DishId, Quantity, UnitPrice, Description)
+
+**Latest Updates:**
+- ✅ **PaymentTime** added to Order model (DateTime?, nullable)
+- ✅ Separate tracking for order creation time vs payment time
 
 #### 2. **Repositories** ✅
 - ✅ IAreaRepository + AreaRepository (CRUD Areas)
@@ -28,8 +32,13 @@
 - ✅ IDishService + DishService
 - ✅ ICategoryService + CategoryService
 - ✅ ICustomerService + CustomerService
-- ✅ IOrderService + OrderService
+- ✅ IOrderService + OrderService (**NEW: PayOrder() method**)
 - ✅ IOrderDetailService + OrderDetailService
+
+**Latest Updates:**
+- ✅ **OrderService.PayOrder()** - Dedicated payment method
+- ✅ Auto-set PaymentTime when order status changes to "Completed"
+- ✅ Validation: Cannot pay cancelled/already-paid orders
 
 #### 4. **Database Context** ✅
 - ✅ RestaurantMiniManagementDbContext
@@ -88,7 +97,7 @@
 
 ---
 
-## IV. QUẢN LÝ KHƯ VỰC & BÀN
+## IV. QUẢN LÝ KHƯ VỰC & B ÀN
 
 ### ✅ 4. Quản lý khu vực (Area Management)
 
@@ -110,24 +119,29 @@
 
 ---
 
-### 🟡 5. Quản lý bàn (Table Management)
+### 🟢 5. Quản lý bàn (Table Management)
 
 **Yêu cầu:**
 - ✅ Tạo bàn (manual + auto)
 - ✅ Xóa bàn
 - ✅ Cập nhật trạng thái bàn
-- ⚠️ Hiển thị sơ đồ bàn theo khu vực
+- ✅ Hiển thị sơ đồ bàn theo khu vực
+- ✅ Multi-select tables with toggle mode
 
-**Trạng thái:** 🟡 70% HOÀN THÀNH
+**Trạng thái:** ✅ 100% HOÀN THÀNH
 **Đã tạo:**
 - [x] Backend: TableService hoàn chỉnh
-- [x] Models/ViewModels/TableViewModel.cs
-- [ ] Frontend: Chưa có UI riêng cho Table Management
-- [ ] UserControls/TableCardControl.xaml (Card hiển thị 1 bàn)
-- [ ] Dialog: AddTableDialog.xaml
-- [ ] Dialog: EditTableDialog.xaml
+- [x] Models/ViewModels/TableViewModel.cs (với IsSelected property)
+- [x] Frontend: Table Management UI integrated trong AreaManagementPage
+- [x] Dialogs/AddTableDialog.xaml + ViewModel
+- [x] Dialogs/EditTableDialog.xaml + ViewModel
+- [x] Visual table cards với status colors
+- [x] Selection mode toggle (enable/disable multi-select)
+- [x] Bulk delete multiple tables
+- [x] Edit single table
+- [x] Action buttons (Edit/Del) auto-disable in selection mode
 
-**Ghi chú:** Backend đã hoàn chỉnh, cần implement UI
+**Ghi chú:** ✅ Table Management được tích hợp trong AreaManagementPage với UI/UX hiện đại
 
 ---
 
@@ -280,7 +294,7 @@
 - ✅ EF Core + SQL Server
 - ⚠️ Cần bổ sung nhỏ: OrderRepository.GetOrdersByDateRange()
 
-### Frontend Status: 🟢 70% Complete
+### Frontend Status: 🟢 75% Complete
 - ✅ Project structure (MVVM folders)
 - ✅ Base classes (BaseViewModel, RelayCommand)
 - ✅ Services (Configuration, Dialog, Navigation, Authentication)
@@ -289,12 +303,14 @@
 - ✅ AdminShellWindow + ViewModel ✅
 - ✅ DashboardPage + ViewModel ✅
 - ✅ AreaManagementPage + ViewModel + Dialogs ✅
+  - ✅ **NEW:** Multi-select tables with toggle mode
+  - ✅ **NEW:** Bulk delete, visual selection indicators
+  - ✅ **NEW:** Action buttons auto-disable in selection mode
 - ✅ CategoryManagementPage + ViewModel + Dialogs ✅
 - ✅ DishManagementPage + ViewModel + Dialogs ✅
-- ✅ CustomerManagementPage + ViewModel + Dialogs ✅ (NEW!)
+- ✅ CustomerManagementPage + ViewModel + Dialogs ✅
 - ❌ POSPage (CORE FEATURE - 0%)
 - ❌ OrderReportPage (0%)
-- ❌ TableManagement UI (backend ready, no UI)
 - ❌ PaymentDialog (0%)
 
 ---
@@ -304,9 +320,30 @@
 ### ✅ HOÀN THÀNH RỒI:
 1. ✅ PHASE 1: LOGIN & AUTHENTICATION
 2. ✅ PHASE 2: MAIN SHELL & NAVIGATION  
-3. ✅ PHASE 3: AREA MANAGEMENT
+3. ✅ PHASE 3: AREA MANAGEMENT (**UPDATED: Multi-select tables**)
 4. ✅ PHASE 4: CATEGORY MANAGEMENT
 5. ✅ PHASE 5: DISH MANAGEMENT (100% COMPLETE! 🎉)
+6. ✅ PHASE 6: CUSTOMER MANAGEMENT (100% COMPLETE! 🎉)
+7. ✅ **NEW:** TABLE MANAGEMENT with Multi-Select (100% COMPLETE! 🎉)
+8. ✅ **NEW:** ORDER MODEL - PaymentTime field added
+
+---
+
+### 📊 TIẾN ĐỘ CHI TIẾT
+
+| Module | Status | Progress | Notes |
+|--------|--------|----------|-------|
+| **Authentication** | ✅ | 100% | Login window + validation |
+| **Admin Shell** | ✅ | 100% | Navigation + logout |
+| **Dashboard** | ✅ | 100% | Basic layout |
+| **Area Management** | ✅ | 100% | CRUD + auto-create tables + **multi-select** |
+| **Table Management** | ✅ | 100% | Integrated in Area page + **toggle selection mode** |
+| **Category Management** | ✅ | 100% | CRUD complete |
+| **Dish Management** | ✅ | 100% | CRUD + search + filter |
+| **Customer Management** | ✅ | 100% | CRUD + search |
+| **POS Screen** | ❌ | 0% | **NEXT PRIORITY** |
+| **Payment Dialog** | ❌ | 0% | Backend ready (PayOrder) |
+| **Order Report** | ❌ | 0% | Need date range filter |
 
 ---
 
