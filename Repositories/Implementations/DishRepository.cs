@@ -28,10 +28,31 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public void AddDish(Dish dish)
         {
-            using (var context = new RestaurantMiniManagementDbContext())
+            System.Diagnostics.Debug.WriteLine($"🔸 DishRepository.AddDish called");
+            System.Diagnostics.Debug.WriteLine($"   Dish data: Name='{dish.Name}', CategoryId={dish.CategoryId}, Price={dish.Price}, Unit='{dish.UnitOfCalculation}'");
+            
+            try
             {
-                context.Dishes.Add(dish);
-                context.SaveChanges();
+                using (var context = new RestaurantMiniManagementDbContext())
+                {
+                    System.Diagnostics.Debug.WriteLine("   DbContext created");
+                    
+                    context.Dishes.Add(dish);
+                    System.Diagnostics.Debug.WriteLine("   Dish added to context");
+                    
+                    var saveResult = context.SaveChanges();
+                    System.Diagnostics.Debug.WriteLine($"   ✅ SaveChanges completed. Rows affected: {saveResult}");
+                    System.Diagnostics.Debug.WriteLine($"   New DishId: {dish.DishId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"   ❌ ERROR in AddDish: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"   Inner exception: {ex.InnerException.Message}");
+                }
+                throw;
             }
         }
 

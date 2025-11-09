@@ -58,11 +58,11 @@ namespace RestaurantManagementWPF.ViewModels
                 Page? page = pageName switch
                 {
                     "Dashboard" => new Views.Pages.DashboardPage(),
-                    "POS" => null, // new Views.Pages.POSPage(),
+                    "POS" => new Views.Pages.POSPage(),
                     "Area" => new Views.Pages.AreaManagementPage(),
-                    "Dish" => null, // new Views.Pages.DishManagementPage(),
-                    "Category" => null, // new Views.Pages.CategoryManagementPage(),
-                    "Customer" => null, // new Views.Pages.CustomerManagementPage(),
+                    "Dish" => new Views.Pages.DishManagementPage(),
+                    "Category" => new Views.Pages.CategoryManagementPage(),
+                    "Customer" => new Views.Pages.CustomerManagementPage(),
                     "Report" => null, // new Views.Pages.OrderReportPage(),
                     "Chatbot" => new Views.Pages.ChatbotPage(),
                     _ => null
