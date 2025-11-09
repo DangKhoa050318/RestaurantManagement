@@ -71,7 +71,7 @@ namespace DataAccessLayer
             {
                 entity.HasKey(e => e.DishId).HasName("PK__dishs__18834F505B455D73");
 
-                entity.ToTable("dishes");
+                entity.ToTable("dishs");
 
                 entity.Property(e => e.Description).HasMaxLength(250);
                 entity.Property(e => e.ImgUrl)
