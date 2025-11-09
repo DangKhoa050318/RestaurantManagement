@@ -1,0 +1,27 @@
+name: .NET Build and Test
+
+on:
+  push:
+    branches: [ "master", "Project_testCI" ] # Sửa tên nhánh nếu cần
+  pull_request:
+    branches: [ "master", "Project_testCI" ]
+
+jobs:
+  build:
+    runs-on: windows-latest # Bắt buộc dùng Windows cho WPF
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x # Đảm bảo version này khớp với dự án của bạn (VD: 6.0.x, 7.0.x)
+        
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal --configuration Release
