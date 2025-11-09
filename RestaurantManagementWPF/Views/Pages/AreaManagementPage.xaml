@@ -180,6 +180,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -203,6 +204,29 @@
 
                             <!-- Table Actions -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <!-- Toggle Selection Mode Button -->
+                                <Button Command="{Binding ToggleSelectionModeCommand}"
+                                        FontSize="12"
+                                        Padding="10,5"
+                                        Margin="0,0,5,0"
+                                        ToolTip="Toggle multi-select mode">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelectionModeEnabled}" Value="True">
+                                                    <Setter Property="Background" Value="#4CAF50"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="BorderBrush" Value="#4CAF50"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding SelectionModeText}" 
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                
                                 <Button Content="+ Add Table"
                                         Command="{Binding AddTableCommand}"
                                         Style="{StaticResource SuccessButton}"
@@ -225,7 +249,7 @@
                     </Border>
 
                     <!-- Tables Display -->
-                    <ScrollViewer Grid.Row="1" 
+                    <ScrollViewer Grid.Row="2" 
                                   VerticalScrollBarVisibility="Auto"
                                   Padding="15">
                         <ItemsControl ItemsSource="{Binding TablesInSelectedArea}">
@@ -245,12 +269,8 @@
                                                 BorderThickness="2"
                                                 CornerRadius="8"
                                                 Padding="10"
-                                                Cursor="Hand">
-                                            <Border.InputBindings>
-                                                <MouseBinding Command="{Binding DataContext.SelectTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                             CommandParameter="{Binding}"
-                                                             MouseAction="LeftClick"/>
-                                            </Border.InputBindings>
+                                                Cursor="Hand"
+                                                PreviewMouseLeftButtonDown="Border_PreviewMouseLeftButtonDown">
                                             
                                             <Grid>
                                                 <Grid.RowDefinitions>
@@ -303,40 +323,60 @@
                                                     <Button Content="Edit"
                                                             Command="{Binding DataContext.EditTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                             CommandParameter="{Binding}"
-                                                            Style="{StaticResource SecondaryButton}"
                                                             FontSize="10"
                                                             Padding="8,4"
                                                             Width="50"
                                                             Margin="0,0,5,0"
-                                                            ToolTip="Edit table"/>
+                                                            ToolTip="Edit table"
+                                                            Click="Button_Click">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding DataContext.IsSelectionModeEnabled, RelativeSource={RelativeSource AncestorType=Page}}" Value="True">
+                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                        <Setter Property="Opacity" Value="0.3"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
                                                     <Button Content="Del"
                                                             Command="{Binding DataContext.DeleteTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                             CommandParameter="{Binding}"
-                                                            Style="{StaticResource DangerButton}"
                                                             FontSize="10"
                                                             Padding="8,4"
                                                             Width="50"
-                                                            ToolTip="Delete table"/>
+                                                            ToolTip="Delete table"
+                                                            Click="Button_Click">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding DataContext.IsSelectionModeEnabled, RelativeSource={RelativeSource AncestorType=Page}}" Value="True">
+                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                        <Setter Property="Opacity" Value="0.3"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
 
-                                        <!-- Selection Border (shows when selected) -->
+                                        <!-- Selection Highlight Border (Only Border, No Checkmark) -->
                                         <Border Width="140" 
                                                 Height="180"
                                                 BorderBrush="#2196F3"
                                                 BorderThickness="4"
                                                 CornerRadius="8"
-                                                IsHitTestVisible="False">
+                                                IsHitTestVisible="False"
+                                                Visibility="{Binding IsSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
                                             <Border.Effect>
-                                                <DropShadowEffect Color="#2196F3" BlurRadius="15" ShadowDepth="0" Opacity="0.6"/>
+                                                <DropShadowEffect Color="#2196F3" 
+                                                                 BlurRadius="20" 
+                                                                 ShadowDepth="0" 
+                                                                 Opacity="0.7"/>
                                             </Border.Effect>
-                                            <Border.Visibility>
-                                                <MultiBinding Converter="{StaticResource TableSelectionConverter}">
-                                                    <Binding Path="TableId"/>
-                                                    <Binding Path="DataContext.SelectedTable" RelativeSource="{RelativeSource AncestorType=Page}"/>
-                                                </MultiBinding>
-                                            </Border.Visibility>
                                         </Border>
                                     </Grid>
                                 </DataTemplate>
@@ -345,7 +385,7 @@
                     </ScrollViewer>
 
                     <!-- Empty State -->
-                    <StackPanel Grid.Row="1"
+                    <StackPanel Grid.Row="2"
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
                         <StackPanel.Style>

@@ -10,6 +10,7 @@ namespace RestaurantManagementWPF.ViewModels.Models
         private string _status = "Empty";
         private int? _areaId;
         private string _areaName = string.Empty;
+        private bool _isSelected;
 
         public int TableId
         {
@@ -45,6 +46,15 @@ namespace RestaurantManagementWPF.ViewModels.Models
         {
             get => _areaName;
             set => SetProperty(ref _areaName, value);
+        }
+
+        /// <summary>
+        /// Indicates if this table is currently selected
+        /// </summary>
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
         }
 
         /// <summary>
