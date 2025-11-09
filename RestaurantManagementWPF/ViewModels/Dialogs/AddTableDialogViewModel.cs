@@ -11,6 +11,8 @@ namespace RestaurantManagementWPF.ViewModels.Dialogs
         private Area? _selectedArea;
         private string _selectedStatus = "Empty";
         private ObservableCollection<string> _statuses = new();
+        private bool _isSingleMode = true;
+        private int _numberOfTables = 1;
 
         public AddTableDialogViewModel(List<Area> areas)
         {
@@ -72,6 +74,40 @@ namespace RestaurantManagementWPF.ViewModels.Dialogs
             set => SetProperty(ref _selectedStatus, value);
         }
 
+        public bool IsSingleMode
+        {
+            get => _isSingleMode;
+            set
+            {
+                if (SetProperty(ref _isSingleMode, value))
+                {
+                    OnPropertyChanged(nameof(IsMultipleMode));
+                    CommandManager.InvalidateRequerySuggested();
+                }
+            }
+        }
+
+        public bool IsMultipleMode
+        {
+            get => !_isSingleMode;
+            set
+            {
+                IsSingleMode = !value;
+            }
+        }
+
+        public int NumberOfTables
+        {
+            get => _numberOfTables;
+            set
+            {
+                if (SetProperty(ref _numberOfTables, value))
+                {
+                    CommandManager.InvalidateRequerySuggested();
+                }
+            }
+        }
+
         public bool DialogResult { get; set; }
 
         #endregion
@@ -86,7 +122,17 @@ namespace RestaurantManagementWPF.ViewModels.Dialogs
 
         private bool CanExecuteOK(object? parameter)
         {
-            return !string.IsNullOrWhiteSpace(TableName) && SelectedArea != null;
+            if (SelectedArea == null)
+                return false;
+
+            if (IsSingleMode)
+            {
+                return !string.IsNullOrWhiteSpace(TableName);
+            }
+            else
+            {
+                return NumberOfTables > 0 && NumberOfTables <= 50; // Limit to 50 tables
+            }
         }
 
         private void ExecuteOK(object? parameter)

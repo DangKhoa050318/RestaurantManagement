@@ -236,88 +236,109 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Width="140" 
-                                            Height="180"
-                                            Margin="10"
-                                            Background="{Binding StatusColor}"
-                                            BorderBrush="#CCCCCC"
-                                            BorderThickness="2"
-                                            CornerRadius="8"
-                                            Padding="10"
-                                            Cursor="Hand">
-                                        <Border.InputBindings>
-                                            <MouseBinding Command="{Binding DataContext.SelectTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                         CommandParameter="{Binding}"
-                                                         MouseAction="LeftClick"/>
-                                        </Border.InputBindings>
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="*"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
+                                    <Grid Margin="10">
+                                        <!-- Main Table Card -->
+                                        <Border Width="140" 
+                                                Height="180"
+                                                Background="{Binding StatusColor}"
+                                                BorderBrush="#CCCCCC"
+                                                BorderThickness="2"
+                                                CornerRadius="8"
+                                                Padding="10"
+                                                Cursor="Hand">
+                                            <Border.InputBindings>
+                                                <MouseBinding Command="{Binding DataContext.SelectTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                             CommandParameter="{Binding}"
+                                                             MouseAction="LeftClick"/>
+                                            </Border.InputBindings>
+                                            
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
 
-                                            <!-- Table Name -->
-                                            <TextBlock Grid.Row="0"
-                                                       Text="{Binding TableName}"
-                                                       FontSize="18"
-                                                       FontWeight="Bold"
-                                                       Foreground="#333333"
-                                                       HorizontalAlignment="Center"/>
-
-                                            <!-- Icon -->
-                                            <Border Grid.Row="1"
-                                                    Width="60"
-                                                    Height="60"
-                                                    Background="White"
-                                                    CornerRadius="30"
-                                                    Margin="0,10">
-                                                <TextBlock Text="TABLE"
-                                                           FontSize="11"
+                                                <!-- Table Name -->
+                                                <TextBlock Grid.Row="0"
+                                                           Text="{Binding TableName}"
+                                                           FontSize="18"
                                                            FontWeight="Bold"
-                                                           Foreground="#666666"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"/>
-                                            </Border>
-
-                                            <!-- Status Badge -->
-                                            <Border Grid.Row="2"
-                                                    Background="White"
-                                                    CornerRadius="4"
-                                                    Padding="8,4"
-                                                    Margin="0,0,0,10">
-                                                <TextBlock Text="{Binding Status}"
-                                                           FontSize="12"
-                                                           FontWeight="SemiBold"
                                                            Foreground="#333333"
                                                            HorizontalAlignment="Center"/>
-                                            </Border>
 
-                                            <!-- Action Buttons -->
-                                            <StackPanel Grid.Row="3" 
-                                                       Orientation="Horizontal"
-                                                       HorizontalAlignment="Center">
-                                                <Button Content="Edit"
-                                                        Command="{Binding DataContext.EditTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                        CommandParameter="{Binding}"
-                                                        Style="{StaticResource SecondaryButton}"
-                                                        FontSize="10"
+                                                <!-- Icon -->
+                                                <Border Grid.Row="1"
+                                                        Width="60"
+                                                        Height="60"
+                                                        Background="White"
+                                                        CornerRadius="30"
+                                                        Margin="0,10">
+                                                    <TextBlock Text="TABLE"
+                                                               FontSize="11"
+                                                               FontWeight="Bold"
+                                                               Foreground="#666666"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+
+                                                <!-- Status Badge -->
+                                                <Border Grid.Row="2"
+                                                        Background="White"
+                                                        CornerRadius="4"
                                                         Padding="8,4"
-                                                        Width="50"
-                                                        Margin="0,0,5,0"
-                                                        ToolTip="Edit table"/>
-                                                <Button Content="Del"
-                                                        Command="{Binding DataContext.DeleteTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                        CommandParameter="{Binding}"
-                                                        Style="{StaticResource DangerButton}"
-                                                        FontSize="10"
-                                                        Padding="8,4"
-                                                        Width="50"
-                                                        ToolTip="Delete table"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
+                                                        Margin="0,0,0,10">
+                                                    <TextBlock Text="{Binding Status}"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#333333"
+                                                               HorizontalAlignment="Center"/>
+                                                </Border>
+
+                                                <!-- Action Buttons -->
+                                                <StackPanel Grid.Row="3" 
+                                                           Orientation="Horizontal"
+                                                           HorizontalAlignment="Center">
+                                                    <Button Content="Edit"
+                                                            Command="{Binding DataContext.EditTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource SecondaryButton}"
+                                                            FontSize="10"
+                                                            Padding="8,4"
+                                                            Width="50"
+                                                            Margin="0,0,5,0"
+                                                            ToolTip="Edit table"/>
+                                                    <Button Content="Del"
+                                                            Command="{Binding DataContext.DeleteTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource DangerButton}"
+                                                            FontSize="10"
+                                                            Padding="8,4"
+                                                            Width="50"
+                                                            ToolTip="Delete table"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Selection Border (shows when selected) -->
+                                        <Border Width="140" 
+                                                Height="180"
+                                                BorderBrush="#2196F3"
+                                                BorderThickness="4"
+                                                CornerRadius="8"
+                                                IsHitTestVisible="False">
+                                            <Border.Effect>
+                                                <DropShadowEffect Color="#2196F3" BlurRadius="15" ShadowDepth="0" Opacity="0.6"/>
+                                            </Border.Effect>
+                                            <Border.Visibility>
+                                                <MultiBinding Converter="{StaticResource TableSelectionConverter}">
+                                                    <Binding Path="TableId"/>
+                                                    <Binding Path="DataContext.SelectedTable" RelativeSource="{RelativeSource AncestorType=Page}"/>
+                                                </MultiBinding>
+                                            </Border.Visibility>
+                                        </Border>
+                                    </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

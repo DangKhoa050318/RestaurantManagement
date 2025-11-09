@@ -310,22 +310,43 @@ namespace RestaurantManagementWPF.ViewModels
 
                 if (dialog.ShowDialog() == true && viewModel.DialogResult)
                 {
-                    var newTable = new Table
+                    if (viewModel.IsSingleMode)
                     {
-                        TableName = viewModel.TableName,
-                        AreaId = viewModel.SelectedArea.AreaId,
-                        Status = viewModel.SelectedStatus
-                    };
+                        // Single table mode
+                        var newTable = new Table
+                        {
+                            TableName = viewModel.TableName,
+                            AreaId = viewModel.SelectedArea.AreaId,
+                            Status = viewModel.SelectedStatus
+                        };
 
-                    _tableService.AddTable(newTable);
-                    _dialogService.ShowSuccess($"Table '{newTable.TableName}' added successfully!");
+                        _tableService.AddTable(newTable);
+                        _dialogService.ShowSuccess($"Table '{newTable.TableName}' added successfully!");
+                    }
+                    else
+                    {
+                        // Multiple tables mode
+                        for (int i = 1; i <= viewModel.NumberOfTables; i++)
+                        {
+                            var newTable = new Table
+                            {
+                                TableName = $"Table {i:D2}",
+                                AreaId = viewModel.SelectedArea.AreaId,
+                                Status = viewModel.SelectedStatus
+                            };
+
+                            _tableService.AddTable(newTable);
+                        }
+                        _dialogService.ShowSuccess($"{viewModel.NumberOfTables} tables added successfully!");
+                    }
+
                     LoadTablesForSelectedArea();
                     _ = LoadAreasAsync(); // Refresh to update table count
                 }
             }
             catch (Exception ex)
             {
-                _dialogService.ShowError($"Failed to add table: {ex.Message}");
+                _dialogService.ShowError($"Failed to add table(s): {ex.Message}");
             }
         }
 

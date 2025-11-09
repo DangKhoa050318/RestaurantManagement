@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Add New Table" 
-        Height="400" Width="450"
+        Height="500" Width="450"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="White">
@@ -43,31 +43,86 @@
                       Padding="10,8"
                       Margin="0,0,0,15"/>
 
-            <!-- Table Name -->
-            <TextBlock Text="Table Name: *" 
-                       FontSize="13" 
-                       Foreground="#333333"
-                       Margin="0,0,0,5"/>
-            <TextBox Text="{Binding TableName, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource ModernTextBox}"
-                     FontSize="14"
-                     Padding="10,8"
-                     Margin="0,0,0,15"/>
-            <TextBlock Text="Example: A01, B02, VIP01"
-                       FontSize="11"
-                       Foreground="#999999"
-                       Margin="0,-10,0,15"/>
+            <!-- Mode Selection -->
+            <Border Background="#F5F5F5"
+                    Padding="15"
+                    CornerRadius="8"
+                    Margin="0,0,0,15">
+                <StackPanel>
+                    <TextBlock Text="Add Mode:" 
+                               FontSize="13" 
+                               FontWeight="SemiBold"
+                               Foreground="#333333"
+                               Margin="0,0,0,10"/>
+                    
+                    <RadioButton Content="Add single table"
+                                 IsChecked="{Binding IsSingleMode}"
+                                 FontSize="13"
+                                 Foreground="#333333"
+                                 Margin="0,0,0,8"/>
+                    
+                    <RadioButton Content="Add multiple tables at once"
+                                 IsChecked="{Binding IsMultipleMode}"
+                                 FontSize="13"
+                                 Foreground="#333333"/>
+                </StackPanel>
+            </Border>
 
-            <!-- Status -->
-            <TextBlock Text="Initial Status:" 
-                       FontSize="13" 
-                       Foreground="#333333"
-                       Margin="0,0,0,5"/>
-            <ComboBox ItemsSource="{Binding Statuses}"
-                      SelectedItem="{Binding SelectedStatus}"
-                      FontSize="14"
-                      Padding="10,8"
-                      Margin="0,0,0,0"/>
+            <!-- Single Mode Fields -->
+            <StackPanel Visibility="{Binding IsSingleMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <!-- Table Name -->
+                <TextBlock Text="Table Name: *" 
+                           FontSize="13" 
+                           Foreground="#333333"
+                           Margin="0,0,0,5"/>
+                <TextBox Text="{Binding TableName, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource ModernTextBox}"
+                         FontSize="14"
+                         Padding="10,8"
+                         Margin="0,0,0,15"/>
+                <TextBlock Text="Example: A01, B02, VIP01"
+                           FontSize="11"
+                           Foreground="#999999"
+                           Margin="0,-10,0,15"/>
+
+                <!-- Status -->
+                <TextBlock Text="Initial Status:" 
+                           FontSize="13" 
+                           Foreground="#333333"
+                           Margin="0,0,0,5"/>
+                <ComboBox ItemsSource="{Binding Statuses}"
+                          SelectedItem="{Binding SelectedStatus}"
+                          FontSize="14"
+                          Padding="10,8"/>
+            </StackPanel>
+
+            <!-- Multiple Mode Fields -->
+            <StackPanel Visibility="{Binding IsMultipleMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <!-- Number of Tables -->
+                <TextBlock Text="Number of Tables: *" 
+                           FontSize="13" 
+                           Foreground="#333333"
+                           Margin="0,0,0,5"/>
+                <TextBox Text="{Binding NumberOfTables, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource ModernTextBox}"
+                         FontSize="14"
+                         Padding="10,8"
+                         Margin="0,0,0,5"/>
+                <TextBlock Text="Tables will be named: Table 01, Table 02, Table 03..."
+                           FontSize="11"
+                           Foreground="#999999"
+                           Margin="0,0,0,15"/>
+
+                <!-- Initial Status for all -->
+                <TextBlock Text="Initial Status for all tables:" 
+                           FontSize="13" 
+                           Foreground="#333333"
+                           Margin="0,0,0,5"/>
+                <ComboBox ItemsSource="{Binding Statuses}"
+                          SelectedItem="{Binding SelectedStatus}"
+                          FontSize="14"
+                          Padding="10,8"/>
+            </StackPanel>
         </StackPanel>
 
         <!-- Buttons -->
@@ -87,7 +142,7 @@
                     Height="40"/>
 
             <Button Grid.Column="2"
-                    Content="Save Table"
+                    Content="Save Table(s)"
                     Command="{Binding OKCommand}"
                     Style="{StaticResource PrimaryButton}"
                     FontSize="14"
