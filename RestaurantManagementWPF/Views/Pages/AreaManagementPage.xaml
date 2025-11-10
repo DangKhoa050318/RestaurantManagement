@@ -180,6 +180,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -189,20 +190,66 @@
                             Padding="15,10"
                             BorderBrush="#E0E0E0"
                             BorderThickness="0,0,0,1">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Tables in " 
-                                       FontSize="16"
-                                       FontWeight="SemiBold"
-                                       Foreground="#333333"/>
-                            <TextBlock Text="{Binding SelectedArea.AreaName, FallbackValue='(Select an area)'}"
-                                       FontSize="16"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource PrimaryBrush}"/>
-                        </StackPanel>
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Tables in " 
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Foreground="#333333"/>
+                                <TextBlock Text="{Binding SelectedArea.AreaName, FallbackValue='(Select an area)'}"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource PrimaryBrush}"/>
+                            </StackPanel>
+
+                            <!-- Table Actions -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <!-- Toggle Selection Mode Button -->
+                                <Button Command="{Binding ToggleSelectionModeCommand}"
+                                        FontSize="12"
+                                        Padding="10,5"
+                                        Margin="0,0,5,0"
+                                        ToolTip="Toggle multi-select mode">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelectionModeEnabled}" Value="True">
+                                                    <Setter Property="Background" Value="#4CAF50"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="BorderBrush" Value="#4CAF50"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding SelectionModeText}" 
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                
+                                <Button Content="+ Add Table"
+                                        Command="{Binding AddTableCommand}"
+                                        Style="{StaticResource SuccessButton}"
+                                        FontSize="12"
+                                        Padding="10,5"
+                                        Margin="0,0,5,0"/>
+                                <Button Content="Edit"
+                                        Command="{Binding EditTableCommand}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        FontSize="12"
+                                        Padding="10,5"
+                                        Margin="0,0,5,0"/>
+                                <Button Content="Delete"
+                                        Command="{Binding DeleteTableCommand}"
+                                        Style="{StaticResource DangerButton}"
+                                        FontSize="12"
+                                        Padding="10,5"/>
+                            </StackPanel>
+                        </Grid>
                     </Border>
 
                     <!-- Tables Display -->
-                    <ScrollViewer Grid.Row="1" 
+                    <ScrollViewer Grid.Row="2" 
                                   VerticalScrollBarVisibility="Auto"
                                   Padding="15">
                         <ItemsControl ItemsSource="{Binding TablesInSelectedArea}">
@@ -213,58 +260,132 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Width="120" 
-                                            Height="120"
-                                            Margin="10"
-                                            Background="#F5F5F5"
-                                            BorderBrush="#E0E0E0"
-                                            BorderThickness="2"
-                                            CornerRadius="8"
-                                            Padding="10">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="*"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
+                                    <Grid Margin="10">
+                                        <!-- Main Table Card -->
+                                        <Border Width="140" 
+                                                Height="180"
+                                                Background="{Binding StatusColor}"
+                                                BorderBrush="#CCCCCC"
+                                                BorderThickness="2"
+                                                CornerRadius="8"
+                                                Padding="10"
+                                                Cursor="Hand"
+                                                PreviewMouseLeftButtonDown="Border_PreviewMouseLeftButtonDown">
+                                            
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
 
-                                            <!-- Table Name -->
-                                            <TextBlock Grid.Row="0"
-                                                       Text="{Binding TableName}"
-                                                       FontSize="14"
-                                                       FontWeight="Bold"
-                                                       Foreground="#333333"
-                                                       HorizontalAlignment="Center"/>
-
-                                            <!-- Icon -->
-                                            <Viewbox Grid.Row="1" 
-                                                     Width="40" 
-                                                     Height="40"
-                                                     Margin="0,10">
-                                                <TextBlock Text="&#128444;" 
-                                                           FontSize="32"/>
-                                            </Viewbox>
-
-                                            <!-- Status Badge -->
-                                            <Border Grid.Row="2"
-                                                    Background="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
-                                                    CornerRadius="4"
-                                                    Padding="8,4">
-                                                <TextBlock Text="{Binding Status}"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="White"
+                                                <!-- Table Name -->
+                                                <TextBlock Grid.Row="0"
+                                                           Text="{Binding TableName}"
+                                                           FontSize="18"
+                                                           FontWeight="Bold"
+                                                           Foreground="#333333"
                                                            HorizontalAlignment="Center"/>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
+
+                                                <!-- Icon -->
+                                                <Border Grid.Row="1"
+                                                        Width="60"
+                                                        Height="60"
+                                                        Background="White"
+                                                        CornerRadius="30"
+                                                        Margin="0,10">
+                                                    <TextBlock Text="TABLE"
+                                                               FontSize="11"
+                                                               FontWeight="Bold"
+                                                               Foreground="#666666"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+
+                                                <!-- Status Badge -->
+                                                <Border Grid.Row="2"
+                                                        Background="White"
+                                                        CornerRadius="4"
+                                                        Padding="8,4"
+                                                        Margin="0,0,0,10">
+                                                    <TextBlock Text="{Binding Status}"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#333333"
+                                                               HorizontalAlignment="Center"/>
+                                                </Border>
+
+                                                <!-- Action Buttons -->
+                                                <StackPanel Grid.Row="3" 
+                                                           Orientation="Horizontal"
+                                                           HorizontalAlignment="Center">
+                                                    <Button Content="Edit"
+                                                            Command="{Binding DataContext.EditTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                            CommandParameter="{Binding}"
+                                                            FontSize="10"
+                                                            Padding="8,4"
+                                                            Width="50"
+                                                            Margin="0,0,5,0"
+                                                            ToolTip="Edit table"
+                                                            Click="Button_Click">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding DataContext.IsSelectionModeEnabled, RelativeSource={RelativeSource AncestorType=Page}}" Value="True">
+                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                        <Setter Property="Opacity" Value="0.3"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
+                                                    <Button Content="Del"
+                                                            Command="{Binding DataContext.DeleteTableCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                            CommandParameter="{Binding}"
+                                                            FontSize="10"
+                                                            Padding="8,4"
+                                                            Width="50"
+                                                            ToolTip="Delete table"
+                                                            Click="Button_Click">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding DataContext.IsSelectionModeEnabled, RelativeSource={RelativeSource AncestorType=Page}}" Value="True">
+                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                        <Setter Property="Opacity" Value="0.3"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Selection Highlight Border (Only Border, No Checkmark) -->
+                                        <Border Width="140" 
+                                                Height="180"
+                                                BorderBrush="#2196F3"
+                                                BorderThickness="4"
+                                                CornerRadius="8"
+                                                IsHitTestVisible="False"
+                                                Visibility="{Binding IsSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <Border.Effect>
+                                                <DropShadowEffect Color="#2196F3" 
+                                                                 BlurRadius="20" 
+                                                                 ShadowDepth="0" 
+                                                                 Opacity="0.7"/>
+                                            </Border.Effect>
+                                        </Border>
+                                    </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
 
                     <!-- Empty State -->
-                    <StackPanel Grid.Row="1"
+                    <StackPanel Grid.Row="2"
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
                         <StackPanel.Style>

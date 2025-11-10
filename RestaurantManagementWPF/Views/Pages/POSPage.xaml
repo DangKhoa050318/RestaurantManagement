@@ -193,12 +193,13 @@
                             <DataGridTemplateColumn Header="" Width="50">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="???" 
+                                        <Button Content="X" 
                                                 Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource DangerButton}"
                                                 Width="30" Height="30"
                                                 FontSize="14"
+                                                FontWeight="Bold"
                                                 Padding="0"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -239,7 +240,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0"
-                            Content="?? SAVE ORDER"
+                            Content="SAVE ORDER"
                             Command="{Binding SaveOrderCommand}"
                             Style="{StaticResource SuccessButton}"
                             Height="50"
@@ -247,7 +248,7 @@
                             FontWeight="SemiBold"/>
 
                     <Button Grid.Column="2"
-                            Content="?? PAYMENT"
+                            Content="PAYMENT"
                             Command="{Binding PaymentCommand}"
                             Style="{StaticResource PrimaryButton}"
                             Height="50"
@@ -255,7 +256,7 @@
                             FontWeight="Bold"/>
 
                     <Button Grid.Column="4"
-                            Content="??? CLEAR"
+                            Content="CLEAR"
                             Command="{Binding ClearOrderCommand}"
                             Style="{StaticResource DangerButton}"
                             Height="50"
@@ -385,8 +386,10 @@
                                                 <Border Grid.Row="0"
                                                         Background="#F5F5F5"
                                                         CornerRadius="8,8,0,0">
-                                                    <TextBlock Text="???"
-                                                              FontSize="40"
+                                                    <TextBlock Text="DISH"
+                                                              FontSize="16"
+                                                              FontWeight="SemiBold"
+                                                              Foreground="#CCCCCC"
                                                               HorizontalAlignment="Center"
                                                               VerticalAlignment="Center"/>
                                                 </Border>
