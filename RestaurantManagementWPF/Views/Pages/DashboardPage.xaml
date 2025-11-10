@@ -77,9 +77,11 @@
                         CornerRadius="8"
                         Padding="20">
                     <StackPanel>
-                        <TextBlock Text="??" 
+                        <TextBlock Text="&#xE80F;" 
+                                   FontFamily="Segoe MDL2 Assets"
                                    FontSize="32"
                                    HorizontalAlignment="Center"
+                                   Foreground="#2196F3"
                                    Margin="0,0,0,10"/>
                         <TextBlock Text="Total Tables" 
                                    FontSize="14"
@@ -100,9 +102,11 @@
                         CornerRadius="8"
                         Padding="20">
                     <StackPanel>
-                        <TextBlock Text="?" 
+                        <TextBlock Text="&#xE73E;" 
+                                   FontFamily="Segoe MDL2 Assets"
                                    FontSize="32"
                                    HorizontalAlignment="Center"
+                                   Foreground="#4CAF50"
                                    Margin="0,0,0,10"/>
                         <TextBlock Text="Available" 
                                    FontSize="14"
@@ -123,9 +127,11 @@
                         CornerRadius="8"
                         Padding="20">
                     <StackPanel>
-                        <TextBlock Text="???" 
+                        <TextBlock Text="&#xE8EA;" 
+                                   FontFamily="Segoe MDL2 Assets"
                                    FontSize="32"
                                    HorizontalAlignment="Center"
+                                   Foreground="#FF9800"
                                    Margin="0,0,0,10"/>
                         <TextBlock Text="In Use" 
                                    FontSize="14"
@@ -146,9 +152,11 @@
                         CornerRadius="8"
                         Padding="20">
                     <StackPanel>
-                        <TextBlock Text="??" 
+                        <TextBlock Text="&#xE8F1;" 
+                                   FontFamily="Segoe MDL2 Assets"
                                    FontSize="32"
                                    HorizontalAlignment="Center"
+                                   Foreground="#FF6F00"
                                    Margin="0,0,0,10"/>
                         <TextBlock Text="Active Orders" 
                                    FontSize="14"
@@ -183,9 +191,11 @@
                         Padding="20"
                         Grid.ColumnSpan="3">
                     <StackPanel>
-                        <TextBlock Text="??" 
+                        <TextBlock Text="&#xE7BB;" 
+                                   FontFamily="Segoe MDL2 Assets"
                                    FontSize="32"
                                    HorizontalAlignment="Center"
+                                   Foreground="#4CAF50"
                                    Margin="0,0,0,10"/>
                         <TextBlock Text="Today's Revenue" 
                                    FontSize="14"
@@ -213,9 +223,11 @@
                         CornerRadius="8"
                         Padding="20">
                     <StackPanel>
-                        <TextBlock Text="??" 
+                        <TextBlock Text="&#xE8E2;" 
+                                   FontFamily="Segoe MDL2 Assets"
                                    FontSize="32"
                                    HorizontalAlignment="Center"
+                                   Foreground="#E91E63"
                                    Margin="0,0,0,10"/>
                         <TextBlock Text="Total Dishes" 
                                    FontSize="14"
@@ -236,9 +248,11 @@
                         CornerRadius="8"
                         Padding="20">
                     <StackPanel>
-                        <TextBlock Text="??" 
+                        <TextBlock Text="&#xE716;" 
+                                   FontFamily="Segoe MDL2 Assets"
                                    FontSize="32"
                                    HorizontalAlignment="Center"
+                                   Foreground="#9C27B0"
                                    Margin="0,0,0,10"/>
                         <TextBlock Text="Customers" 
                                    FontSize="14"
