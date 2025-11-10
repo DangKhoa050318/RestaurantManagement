@@ -10,7 +10,6 @@ namespace RestaurantManagementWPF.ViewModels.Models
         private string _status = "Empty";
         private int? _areaId;
         private string _areaName = string.Empty;
-        private bool _isSelected;
 
         public int TableId
         {
@@ -49,17 +48,8 @@ namespace RestaurantManagementWPF.ViewModels.Models
         }
 
         /// <summary>
-        /// Indicates if this table is currently selected
-        /// </summary>
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set => SetProperty(ref _isSelected, value);
-        }
-
-        /// <summary>
         /// Color based on table status
-        /// Empty = Light Blue, Using = Light Green, Booked = Light Orange, Maintenance = Light Red
+        /// Empty = Green, Using = Red, Reserved = Orange
         /// </summary>
         public SolidColorBrush StatusColor
         {
@@ -67,11 +57,10 @@ namespace RestaurantManagementWPF.ViewModels.Models
             {
                 return Status?.ToLower() switch
                 {
-                    "empty" => new SolidColorBrush(Color.FromRgb(144, 202, 249)),    // Light Blue #90CAF9
-                    "using" => new SolidColorBrush(Color.FromRgb(165, 214, 167)),     // Light Green #A5D6A7
-                    "booked" => new SolidColorBrush(Color.FromRgb(255, 204, 128)),    // Light Orange #FFCC80
-                    "maintenance" => new SolidColorBrush(Color.FromRgb(239, 154, 154)), // Light Red #EF9A9A
-                    _ => new SolidColorBrush(Colors.LightGray)
+                    "empty" => new SolidColorBrush(Color.FromRgb(200, 255, 200)), // Light Green
+                    "using" => new SolidColorBrush(Color.FromRgb(255, 200, 200)), // Light Red
+                    "reserved" => new SolidColorBrush(Color.FromRgb(255, 230, 200)), // Light Orange
+                    _ => new SolidColorBrush(Colors.White)
                 };
             }
         }

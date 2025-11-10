@@ -3,7 +3,6 @@ using RestaurantManagementWPF.Helpers;
 using Services.Implementations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DataAccessLayer.Repositories.Implementations;
 
 namespace RestaurantManagementWPF.ViewModels.Dialogs
 {
@@ -21,7 +20,7 @@ namespace RestaurantManagementWPF.ViewModels.Dialogs
 
         public AddDishDialogViewModel()
         {
-            _categoryService = new CategoryService(CategoryRepository.Instance);
+            _categoryService = new CategoryService();
 
             // Initialize Units
             Units = new ObservableCollection<string>

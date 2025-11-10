@@ -148,7 +148,7 @@
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0"
-                    Content="COMPLETE PAYMENT"
+                    Content="? COMPLETE PAYMENT"
                     Command="{Binding OKCommand}"
                     Style="{StaticResource PrimaryButton}"
                     FontSize="14"

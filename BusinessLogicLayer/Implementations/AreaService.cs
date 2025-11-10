@@ -12,9 +12,9 @@ namespace BusinessLogicLayer.Services.Implementations
     {
         private readonly IAreaRepository _areaRepository;
 
-        public AreaService(IAreaRepository areaRepository)
+        public AreaService()
         {
-            _areaRepository = areaRepository;
+            _areaRepository = AreaRepository.Instance;
         }
 
         public List<Area> GetAreas() => _areaRepository.GetAreas();

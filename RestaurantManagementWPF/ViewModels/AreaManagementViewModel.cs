@@ -2,11 +2,9 @@ using BusinessLogicLayer.Services.Implementations;
 using BusinessObjects.Models;
 using RestaurantManagementWPF.Helpers;
 using RestaurantManagementWPF.Services;
-using RestaurantManagementWPF.ViewModels.Models;
 using Services.Implementations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DataAccessLayer.Repositories.Implementations;
 
 namespace RestaurantManagementWPF.ViewModels
 {
@@ -18,30 +16,22 @@ namespace RestaurantManagementWPF.ViewModels
 
         private ObservableCollection<Area> _areas = new();
         private Area? _selectedArea;
-        private ObservableCollection<TableViewModel> _tablesInSelectedArea = new();
-        private ObservableCollection<TableViewModel> _selectedTables = new();
+        private ObservableCollection<Table> _tablesInSelectedArea = new();
         private bool _isLoading;
-        private bool _isSelectionModeEnabled = false;
 
         public AreaManagementViewModel()
         {
-            _areaService = new AreaService(AreaRepository.Instance);
-            _tableService = new TableService(TableRepository.Instance);
+            _areaService = new AreaService();
+            _tableService = new TableService();
             _dialogService = new DialogService();
 
+            // Commands
             AddAreaCommand = new RelayCommand(ExecuteAddArea);
             EditAreaCommand = new RelayCommand(ExecuteEditArea, _ => SelectedArea != null);
             DeleteAreaCommand = new RelayCommand(ExecuteDeleteArea, _ => SelectedArea != null);
             RefreshCommand = new RelayCommand(async _ => await LoadAreasAsync());
 
-            AddTableCommand = new RelayCommand(ExecuteAddTable, _ => SelectedArea != null);
-            // ? FIX: Always enabled - will check parameter inside Execute
-            EditTableCommand = new RelayCommand(ExecuteEditTable);
-            DeleteTableCommand = new RelayCommand(ExecuteDeleteTable);
-            SelectTableCommand = new RelayCommand(ExecuteSelectTable);
-            ClearSelectionCommand = new RelayCommand(_ => ClearTableSelection());
-            ToggleSelectionModeCommand = new RelayCommand(ExecuteToggleSelectionMode);
-
+            // Load data
             _ = LoadAreasAsync();
         }
 
@@ -62,50 +52,21 @@ namespace RestaurantManagementWPF.ViewModels
                 {
                     CommandManager.InvalidateRequerySuggested();
                     LoadTablesForSelectedArea();
-                    ClearTableSelection();
                 }
             }
         }
 
-        public ObservableCollection<TableViewModel> TablesInSelectedArea
+        public ObservableCollection<Table> TablesInSelectedArea
         {
             get => _tablesInSelectedArea;
             set => SetProperty(ref _tablesInSelectedArea, value);
         }
-
-        public ObservableCollection<TableViewModel> SelectedTables
-        {
-            get => _selectedTables;
-            set => SetProperty(ref _selectedTables, value);
-        }
-
-        public TableViewModel? SelectedTable => SelectedTables.FirstOrDefault();
 
         public bool IsLoading
         {
             get => _isLoading;
             set => SetProperty(ref _isLoading, value);
         }
-
-        public bool IsSelectionModeEnabled
-        {
-            get => _isSelectionModeEnabled;
-            set
-            {
-                if (SetProperty(ref _isSelectionModeEnabled, value))
-                {
-                    OnPropertyChanged(nameof(SelectionModeText));
-                    OnPropertyChanged(nameof(SelectionModeIcon));
-                    if (!value) ClearTableSelection();
-                }
-            }
-        }
-
-        public string SelectionModeText => IsSelectionModeEnabled ? "Disable Selection" : "Enable Selection";
-        public string SelectionModeIcon => IsSelectionModeEnabled ? "?" : "?";
-        public string SelectedCountText => SelectedTables.Count > 0 
-            ? $"{SelectedTables.Count} table(s) selected" 
-            : "No tables selected";
 
         #endregion
 
@@ -115,12 +76,6 @@ namespace RestaurantManagementWPF.ViewModels
         public ICommand EditAreaCommand { get; }
         public ICommand DeleteAreaCommand { get; }
         public ICommand RefreshCommand { get; }
-        public ICommand AddTableCommand { get; }
-        public ICommand EditTableCommand { get; }
-        public ICommand DeleteTableCommand { get; }
-        public ICommand SelectTableCommand { get; }
-        public ICommand ClearSelectionCommand { get; }
-        public ICommand ToggleSelectionModeCommand { get; }
 
         #endregion
 
@@ -129,15 +84,20 @@ namespace RestaurantManagementWPF.ViewModels
         private async Task LoadAreasAsync()
         {
             IsLoading = true;
+
             try
             {
                 await Task.Run(() =>
                 {
                     var areas = _areaService.GetAreas();
+                    
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
                         Areas.Clear();
-                        foreach (var area in areas) Areas.Add(area);
+                        foreach (var area in areas)
+                        {
+                            Areas.Add(area);
+                        }
                     });
                 });
             }
@@ -154,6 +114,7 @@ namespace RestaurantManagementWPF.ViewModels
         private void LoadTablesForSelectedArea()
         {
             TablesInSelectedArea.Clear();
+
             if (SelectedArea != null)
             {
                 try
@@ -161,15 +122,7 @@ namespace RestaurantManagementWPF.ViewModels
                     var tables = _tableService.GetTablesByArea(SelectedArea.AreaId);
                     foreach (var table in tables)
                     {
-                        TablesInSelectedArea.Add(new TableViewModel
-                        {
-                            TableId = table.TableId,
-                            TableName = table.TableName,
-                            Status = table.Status ?? "Empty",
-                            AreaId = table.AreaId,
-                            AreaName = SelectedArea.AreaName,
-                            IsSelected = false
-                        });
+                        TablesInSelectedArea.Add(table);
                     }
                 }
                 catch (Exception ex)
@@ -186,21 +139,24 @@ namespace RestaurantManagementWPF.ViewModels
             {
                 try
                 {
+                    // Create new area WITHOUT navigation property
                     var newArea = new Area
                     {
                         AreaName = vm.AreaName,
                         AreaStatus = vm.AreaStatus,
-                        Tables = null
+                        Tables = null // Don't initialize collection when adding
                     };
 
                     _areaService.AddArea(newArea);
                     
+                    // Debug: Check if AreaId was populated
                     if (newArea.AreaId == 0)
                     {
                         _dialogService.ShowError("Error: AreaId was not generated from database!");
                         return;
                     }
 
+                    // Auto create tables if requested
                     if (vm.AutoCreateTables && vm.NumberOfTables > 0)
                     {
                         CreateTablesForArea(newArea.AreaId, vm.NumberOfTables);
@@ -211,10 +167,13 @@ namespace RestaurantManagementWPF.ViewModels
                 }
                 catch (Exception ex)
                 {
+                    // Show inner exception details
                     var errorMessage = $"Error creating area: {ex.Message}";
                     if (ex.InnerException != null)
                     {
                         errorMessage += $"\n\nInner Exception: {ex.InnerException.Message}";
+                        
+                        // Show even deeper if exists
                         if (ex.InnerException.InnerException != null)
                         {
                             errorMessage += $"\n\nDeepest Exception: {ex.InnerException.InnerException.Message}";
@@ -232,9 +191,10 @@ namespace RestaurantManagementWPF.ViewModels
                 var table = new Table
                 {
                     TableName = $"Table {i:D2}",
-                    Status = "Empty",
+                    Status = "Empty", // Valid values: Empty, Using, Booked, Maintenance
                     AreaId = areaId
                 };
+
                 _tableService.AddTable(table);
             }
         }
@@ -271,6 +231,7 @@ namespace RestaurantManagementWPF.ViewModels
             if (SelectedArea == null) return;
 
             var tableCount = SelectedArea.Tables?.Count ?? 0;
+            
             var message = tableCount > 0
                 ? $"Are you sure you want to delete area '{SelectedArea.AreaName}'?\n\n" +
                   $"This will also DELETE {tableCount} table(s) in this area!\n\n" +
@@ -294,234 +255,6 @@ namespace RestaurantManagementWPF.ViewModels
                 }
             }
         }
-
-        #region Table Management Methods
-
-        private void ExecuteSelectTable(object? parameter)
-        {
-            if (!IsSelectionModeEnabled)
-            {
-                System.Diagnostics.Debug.WriteLine("Selection mode is disabled. Click ignored.");
-                return;
-            }
-
-            if (parameter is TableViewModel table)
-            {
-                System.Diagnostics.Debug.WriteLine($"=== ExecuteSelectTable ===");
-                System.Diagnostics.Debug.WriteLine($"Table: {table.TableName}, Selected: {table.IsSelected}");
-
-                if (table.IsSelected)
-                {
-                    table.IsSelected = false;
-                    SelectedTables.Remove(table);
-                }
-                else
-                {
-                    table.IsSelected = true;
-                    SelectedTables.Add(table);
-                }
-
-                OnPropertyChanged(nameof(SelectedTable));
-                OnPropertyChanged(nameof(SelectedCountText));
-                CommandManager.InvalidateRequerySuggested();
-            }
-        }
-
-        private void ClearTableSelection()
-        {
-            foreach (var table in TablesInSelectedArea)
-            {
-                table.IsSelected = false;
-            }
-            SelectedTables.Clear();
-            OnPropertyChanged(nameof(SelectedTable));
-            OnPropertyChanged(nameof(SelectedCountText));
-            CommandManager.InvalidateRequerySuggested();
-        }
-
-        private void ExecuteAddTable(object? parameter)
-        {
-            if (SelectedArea == null)
-            {
-                _dialogService.ShowWarning("Please select an area first!", "No Area Selected");
-                return;
-            }
-
-            try
-            {
-                var dialog = new Views.Dialogs.AddTableDialog();
-                var areas = new List<Area> { SelectedArea };
-                var viewModel = new Dialogs.AddTableDialogViewModel(areas);
-                viewModel.SelectedArea = SelectedArea;
-                dialog.DataContext = viewModel;
-
-                if (dialog.ShowDialog() == true && viewModel.DialogResult)
-                {
-                    if (viewModel.IsSingleMode)
-                    {
-                        var newTable = new Table
-                        {
-                            TableName = viewModel.TableName,
-                            AreaId = viewModel.SelectedArea.AreaId,
-                            Status = viewModel.SelectedStatus
-                        };
-                        _tableService.AddTable(newTable);
-                        _dialogService.ShowSuccess($"Table '{newTable.TableName}' added successfully!");
-                    }
-                    else
-                    {
-                        for (int i = 1; i <= viewModel.NumberOfTables; i++)
-                        {
-                            var newTable = new Table
-                            {
-                                TableName = $"Table {i:D2}",
-                                AreaId = viewModel.SelectedArea.AreaId,
-                                Status = viewModel.SelectedStatus
-                            };
-                            _tableService.AddTable(newTable);
-                        }
-                        _dialogService.ShowSuccess($"{viewModel.NumberOfTables} tables added successfully!");
-                    }
-
-                    LoadTablesForSelectedArea();
-                    _ = LoadAreasAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowError($"Failed to add table(s): {ex.Message}");
-            }
-        }
-
-        private void ExecuteEditTable(object? parameter)
-        {
-            TableViewModel? tableToEdit = null;
-
-            // Case 1: Parameter passed from button click (individual table)
-            if (parameter is TableViewModel paramTable)
-            {
-                tableToEdit = paramTable;
-            }
-            // Case 2: From SelectedTables (when selection mode ON)
-            else if (SelectedTables.Count == 1)
-            {
-                tableToEdit = SelectedTables.First();
-            }
-
-            if (tableToEdit == null)
-            {
-                _dialogService.ShowWarning("Please select exactly one table to edit!", "Invalid Selection");
-                return;
-            }
-
-            try
-            {
-                var dialog = new Views.Dialogs.EditTableDialog();
-                var areas = Areas.ToList();
-                var viewModel = new Dialogs.EditTableDialogViewModel(tableToEdit, areas);
-                dialog.DataContext = viewModel;
-
-                if (dialog.ShowDialog() == true && viewModel.DialogResult)
-                {
-                    var updatedTable = new Table
-                    {
-                        TableId = tableToEdit.TableId,
-                        TableName = viewModel.TableName,
-                        AreaId = viewModel.SelectedArea.AreaId,
-                        Status = viewModel.SelectedStatus
-                    };
-
-                    _tableService.UpdateTable(updatedTable);
-                    _dialogService.ShowSuccess($"Table '{updatedTable.TableName}' updated successfully!");
-                    LoadTablesForSelectedArea();
-                    _ = LoadAreasAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowError($"Failed to update table: {ex.Message}");
-            }
-        }
-
-        private void ExecuteDeleteTable(object? parameter)
-        {
-            List<TableViewModel> tablesToDelete = new();
-
-            // Case 1: Parameter passed from button click (individual table)
-            if (parameter is TableViewModel paramTable)
-            {
-                tablesToDelete.Add(paramTable);
-            }
-            // Case 2: From SelectedTables (when selection mode ON)
-            else if (SelectedTables.Count > 0)
-            {
-                tablesToDelete.AddRange(SelectedTables);
-            }
-
-            if (tablesToDelete.Count == 0)
-            {
-                _dialogService.ShowWarning("Please select at least one table to delete!", "No Table Selected");
-                return;
-            }
-
-            var message = tablesToDelete.Count == 1
-                ? $"Are you sure you want to delete table '{tablesToDelete[0].TableName}'?\n\nThis action cannot be undone if the table has no orders."
-                : $"Are you sure you want to delete {tablesToDelete.Count} selected tables?\n\nThis action cannot be undone for tables with no orders.";
-
-            var confirm = _dialogService.ShowConfirmation(message, "Delete Table(s)");
-
-            if (confirm)
-            {
-                try
-                {
-                    int successCount = 0;
-                    int failCount = 0;
-                    var errors = new List<string>();
-
-                    foreach (var table in tablesToDelete.ToList())
-                    {
-                        try
-                        {
-                            _tableService.DeleteTable(table.TableId);
-                            successCount++;
-                        }
-                        catch (Exception ex)
-                        {
-                            failCount++;
-                            errors.Add($"'{table.TableName}': {ex.Message}");
-                        }
-                    }
-
-                    if (failCount == 0)
-                    {
-                        _dialogService.ShowSuccess($"{successCount} table(s) deleted successfully!");
-                    }
-                    else
-                    {
-                        var errorMessage = $"Deleted {successCount} table(s) successfully.\n\n" +
-                                          $"Failed to delete {failCount} table(s):\n" +
-                                          string.Join("\n", errors);
-                        _dialogService.ShowWarning(errorMessage, "Partial Success");
-                    }
-
-                    ClearTableSelection();
-                    LoadTablesForSelectedArea();
-                    _ = LoadAreasAsync();
-                }
-                catch (Exception ex)
-                {
-                    _dialogService.ShowError($"Failed to delete table(s): {ex.Message}");
-                }
-            }
-        }
-
-        private void ExecuteToggleSelectionMode(object? parameter)
-        {
-            IsSelectionModeEnabled = !IsSelectionModeEnabled;
-            System.Diagnostics.Debug.WriteLine($"Selection mode {(IsSelectionModeEnabled ? "ENABLED" : "DISABLED")}");
-        }
-
-        #endregion
 
         #endregion
     }

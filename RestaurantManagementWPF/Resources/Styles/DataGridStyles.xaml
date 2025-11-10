@@ -29,9 +29,6 @@
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
     </Style>
 
-    <!-- DataGrid Header Style (Alias for ColumnHeaderStyle) -->
-    <Style x:Key="DataGridHeaderStyle" TargetType="DataGridColumnHeader" BasedOn="{StaticResource ColumnHeaderStyle}"/>
-
     <!-- DataGrid Cell Style -->
     <Style x:Key="CellStyle" TargetType="DataGridCell">
         <Setter Property="BorderThickness" Value="0"/>

@@ -106,29 +106,6 @@ namespace DataAccessLayer.Repositories.Implementations
             }
         }
 
-        /// <summary>
-        /// Get orders within a date range (inclusive)
-        /// Filter by OrderTime (not PaymentTime)
-        /// </summary>
-        public List<Order> GetOrdersByDateRange(DateTime startDate, DateTime endDate)
-        {
-            using (var context = new RestaurantMiniManagementDbContext())
-            {
-                // Ensure endDate includes the entire day
-                var endDateInclusive = endDate.Date.AddDays(1).AddTicks(-1);
-                
-                return context.Orders
-                    .Where(o => o.OrderTime >= startDate.Date && o.OrderTime <= endDateInclusive)
-                    .Include(o => o.Customer)
-                    .Include(o => o.Table)
-                        .ThenInclude(t => t.Area)
-                    .Include(o => o.OrderDetails)
-                        .ThenInclude(od => od.Dish)
-                    .OrderByDescending(o => o.OrderTime)
-                    .ToList();
-            }
-        }
-
         public void UpdateOrder(Order order)
         {
             using (var context = new RestaurantMiniManagementDbContext())
