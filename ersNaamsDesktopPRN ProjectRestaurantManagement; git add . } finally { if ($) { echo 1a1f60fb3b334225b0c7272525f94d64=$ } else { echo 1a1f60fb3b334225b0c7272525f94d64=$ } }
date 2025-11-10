@@ -1,0 +1,26 @@
+[1mdiff --git a/BusinessObjects/BusinessObjects.csproj b/BusinessObjects/BusinessObjects.csproj[m
+[1mindex fa71b7a..886b95f 100644[m
+[1m--- a/BusinessObjects/BusinessObjects.csproj[m
+[1m+++ b/BusinessObjects/BusinessObjects.csproj[m
+[36m@@ -6,4 +6,8 @@[m
+     <Nullable>enable</Nullable>[m
+   </PropertyGroup>[m
+ [m
+[32m+[m[32m  <ItemGroup>[m
+[32m+[m[32m    <Folder Include="Constants\" />[m
+[32m+[m[32m  </ItemGroup>[m
+[32m+[m
+ </Project>[m
+[1mdiff --git a/DataAccessLayer/DataAccessLayer.csproj b/DataAccessLayer/DataAccessLayer.csproj[m
+[1mindex 1e3d5d7..2e64933 100644[m
+[1m--- a/DataAccessLayer/DataAccessLayer.csproj[m
+[1m+++ b/DataAccessLayer/DataAccessLayer.csproj[m
+[36m@@ -20,4 +20,8 @@[m
+     <ProjectReference Include="..\BusinessObjects\BusinessObjects.csproj" />[m
+   </ItemGroup>[m
+ [m
+[32m+[m[32m  <ItemGroup>[m
+[32m+[m[32m    <Folder Include="Migrations\" />[m
+[32m+[m[32m  </ItemGroup>[m
+[32m+[m
+ </Project>[m
