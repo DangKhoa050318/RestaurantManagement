@@ -11,10 +11,6 @@ namespace DataAccessLayer.Repositories.Implementations
     {
         private static CategoryRepository instance = null;
         private static readonly object instanceLock = new object();
-
-        // TEST HOOK
-        public static Func<RestaurantMiniManagementDbContext> ContextFactory { get; set; } = () => new RestaurantMiniManagementDbContext();
-
         private CategoryRepository() { }
         public static CategoryRepository Instance
         {
@@ -33,7 +29,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public List<Category> GetCategories()
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 return context.Categories.Include(c => c.Dishes).ToList();
             }
@@ -41,7 +37,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public Category GetCategoryById(int id)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 return context.Categories
                               .Include(c => c.Dishes)
@@ -51,7 +47,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public void AddCategory(Category category)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 context.Categories.Add(category);
                 context.SaveChanges();
@@ -60,7 +56,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public void UpdateCategory(Category category)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 context.Categories.Update(category);
                 context.SaveChanges();
@@ -69,7 +65,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public void DeleteCategory(int id)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 // Kiểm tra xem Category còn Dish không
                 bool hasFoods = context.Dishes.Any(f => f.CategoryId == id);

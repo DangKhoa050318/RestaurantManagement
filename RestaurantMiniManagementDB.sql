@@ -59,7 +59,6 @@ CREATE TABLE orders (
     TableId INT NULL,
     CustomerId INT NULL,
     OrderTime DATETIME NOT NULL DEFAULT GETDATE(),
-    PaymentTime DATETIME NULL,  -- Thời gian thanh toán (NULL nếu chưa thanh toán)
     Status VARCHAR(15) NOT NULL DEFAULT 'Scheduled'
         CHECK (Status IN ('Scheduled', 'Completed', 'Cancelled')),
     TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0
@@ -144,13 +143,13 @@ VALUES
 (4, N'Bia Heineken', 35000, 'chai', N'Thức uống dành cho bữa tiệc', 'images/heineken.jpg');
 GO
 
-INSERT INTO orders (TableId, CustomerId, OrderTime, PaymentTime, Status, TotalAmount)
+INSERT INTO orders (TableId, CustomerId, OrderTime, Status, TotalAmount)
 VALUES
-(2, 1, GETDATE(), GETDATE(), 'Completed', 250000),
-(3, 2, GETDATE(), NULL, 'Scheduled', 0),
-(5, 3, DATEADD(HOUR, -3, GETDATE()), DATEADD(HOUR, -3, GETDATE()), 'Completed', 350000),
-(1, 4, DATEADD(DAY, -1, GETDATE()), NULL, 'Cancelled', 0),
-(2, 5, DATEADD(HOUR, -5, GETDATE()), DATEADD(HOUR, -5, GETDATE()), 'Completed', 180000);
+(2, 1, GETDATE(), 'Completed', 250000),
+(3, 2, GETDATE(), 'Scheduled', 0),
+(5, 3, DATEADD(HOUR, -3, GETDATE()), 'Completed', 350000),
+(1, 4, DATEADD(DAY, -1, GETDATE()), 'Cancelled', 0),
+(2, 5, DATEADD(HOUR, -5, GETDATE()), 'Completed', 180000);
 GO
 
 INSERT INTO orderdetails (OrderId, DishId, Quantity, UnitPrice)

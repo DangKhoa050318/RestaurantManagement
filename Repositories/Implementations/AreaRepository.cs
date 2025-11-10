@@ -11,11 +11,6 @@ namespace DataAccessLayer.Repositories.Implementations
     {
         private static AreaRepository instance = null;
         private static readonly object instanceLock = new object();
-
-        // TEST HOOK: allow tests to provide a DbContext factory that returns an in-memory context.
-        // Default behavior keeps using parameterless constructor.
-        public static Func<RestaurantMiniManagementDbContext> ContextFactory { get; set; } = () => new RestaurantMiniManagementDbContext();
-
         private AreaRepository() { }
         public static AreaRepository Instance
         {
@@ -34,14 +29,14 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public List<Area> GetAreas()
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 return context.Areas.Include(a => a.Tables).ToList();
             }
         }
         public Area GetAreaById(int areaId)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 return context.Areas
                               .Include(a => a.Tables)
@@ -51,7 +46,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public void AddArea(Area area)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 // Track the entity
                 var entry = context.Areas.Add(area);
@@ -60,12 +55,13 @@ namespace DataAccessLayer.Repositories.Implementations
                 context.SaveChanges();
                 
                 // At this point, area.AreaId SHOULD have value from database
+                // The 'area' object passed by reference will be updated
             }
         }
 
         public void UpdateArea(Area area)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 context.Areas.Update(area);
                 context.SaveChanges();
@@ -74,7 +70,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public void DeleteArea(int areaId)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 // Check if area has tables
                 var tablesInArea = context.Tables.Where(t => t.AreaId == areaId).ToList();

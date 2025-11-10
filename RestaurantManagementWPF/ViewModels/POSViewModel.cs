@@ -4,7 +4,6 @@ using RestaurantManagementWPF.Services;
 using RestaurantManagementWPF.ViewModels.Models;
 using Services.Implementations;
 using BusinessLogicLayer.Services.Implementations;
-using DataAccessLayer.Repositories.Implementations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -36,11 +35,10 @@ namespace RestaurantManagementWPF.ViewModels
 
         public POSViewModel()
         {
-            // ? FIX: Initialize services with Repository.Instance
-            _areaService = new AreaService(AreaRepository.Instance);
-            _tableService = new TableService(TableRepository.Instance);
-            _categoryService = new CategoryService(CategoryRepository.Instance);
-            _dishService = new DishService(DishRepository.Instance);
+            _areaService = new AreaService();
+            _tableService = new TableService();
+            _categoryService = new CategoryService();
+            _dishService = new DishService();
             _dialogService = new DialogService();
 
             // Commands
@@ -281,8 +279,7 @@ namespace RestaurantManagementWPF.ViewModels
         {
             try
             {
-                // ? FIX: Initialize CustomerService with Repository.Instance
-                var customerService = new CustomerService(CustomerRepository.Instance);
+                var customerService = new global::Services.Implementations.CustomerService();
                 var customers = customerService.GetCustomers();
                 Customers.Clear();
                 
@@ -337,8 +334,7 @@ namespace RestaurantManagementWPF.ViewModels
         {
             try
             {
-                // ? FIX: Use parameterless constructor (OrderService initializes Repository.Instance internally)
-                var orderService = new OrderService();
+                var orderService = new global::Services.Implementations.OrderService();
                 var orders = orderService.GetOrdersByTableId(tableId);
 
                 // Find pending/scheduled order (not completed)
@@ -349,7 +345,7 @@ namespace RestaurantManagementWPF.ViewModels
                     _currentOrderId = pendingOrder.OrderId;
 
                     // Load order details
-                    var orderDetailService = new OrderDetailService();
+                    var orderDetailService = new global::Services.Implementations.OrderDetailService();
                     var orderDetails = orderDetailService.GetOrderDetailsByOrderId(pendingOrder.OrderId);
 
                     OrderItems.Clear();
@@ -358,9 +354,9 @@ namespace RestaurantManagementWPF.ViewModels
                         OrderItems.Add(new OrderItemViewModel
                         {
                             DishId = detail.DishId,
+                            DishName = detail.Dish?.Name ?? "Unknown",
                             Quantity = detail.Quantity,
-                            UnitPrice = detail.UnitPrice,
-                            DishName = detail.Dish?.Name ?? "Unknown"
+                            UnitPrice = detail.UnitPrice
                         });
                     }
 
@@ -491,9 +487,8 @@ namespace RestaurantManagementWPF.ViewModels
         {
             try
             {
-                // ? FIX: Use parameterless constructor
-                var orderService = new OrderService();
-                var orderDetailService = new OrderDetailService();
+                var orderService = new global::Services.Implementations.OrderService();
+                var orderDetailService = new global::Services.Implementations.OrderDetailService();
 
                 if (_currentOrderId.HasValue)
                 {
@@ -587,9 +582,8 @@ namespace RestaurantManagementWPF.ViewModels
                 System.Diagnostics.Debug.WriteLine("=== ExecuteSaveOrder START ===");
                 System.Diagnostics.Debug.WriteLine($"Table: {SelectedTable.TableName}, Items: {OrderItems.Count}, CurrentOrderId: {_currentOrderId}");
 
-                // ? FIX: Use parameterless constructor
-                var orderService = new OrderService();
-                var orderDetailService = new OrderDetailService();
+                var orderService = new global::Services.Implementations.OrderService();
+                var orderDetailService = new global::Services.Implementations.OrderDetailService();
 
                 if (_currentOrderId.HasValue)
                 {
@@ -719,8 +713,7 @@ namespace RestaurantManagementWPF.ViewModels
 
                 if (dialog.ShowDialog() == true && viewModel.DialogResult)
                 {
-                    // ? FIX: Initialize CustomerService with Repository.Instance
-                    var customerService = new CustomerService(CustomerRepository.Instance);
+                    var customerService = new global::Services.Implementations.CustomerService();
                     var newCustomer = new Customer
                     {
                         Fullname = viewModel.CustomerName,
