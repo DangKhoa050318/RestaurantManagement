@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Edit Table" 
-        Height="400" Width="450"
+        Height="500" Width="450"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="White">
