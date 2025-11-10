@@ -59,7 +59,7 @@
                      Style="{StaticResource ModernTextBox}"
                      FontSize="14"
                      Padding="10,8"
-                     Width="400"
+                     MaxWidth="400"
                      HorizontalAlignment="Left"
                      VerticalAlignment="Center">
                 <TextBox.Resources>
@@ -71,7 +71,6 @@
                                         <VisualBrush Stretch="None" AlignmentX="Left">
                                             <VisualBrush.Visual>
                                                 <TextBlock Text="?? Search categories..." 
-                                                          FontFamily="Segoe UI"
                                                           Foreground="#999999" 
                                                           Margin="10,0,0,0"/>
                                             </VisualBrush.Visual>

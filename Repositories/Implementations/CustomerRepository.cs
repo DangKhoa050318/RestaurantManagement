@@ -11,10 +11,6 @@ namespace DataAccessLayer.Repositories.Implementations
     {
         private static CustomerRepository instance = null;
         private static readonly object instanceLock = new object();
-
-        // TEST HOOK
-        public static Func<RestaurantMiniManagementDbContext> ContextFactory { get; set; } = () => new RestaurantMiniManagementDbContext();
-
         private CustomerRepository() { }
         public static CustomerRepository Instance
         {
@@ -33,7 +29,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public void AddCustomer(Customer customer)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 context.Customers.Add(customer);
                 context.SaveChanges();
@@ -42,7 +38,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public void UpdateCustomer(Customer customer)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 context.Customers.Update(customer);
                 context.SaveChanges();
@@ -51,7 +47,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public void DeleteCustomer(int id)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 var customer = context.Customers.Find(id);
                 if (customer != null)
@@ -64,7 +60,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public Customer GetCustomerById(int id)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 return context.Customers
                               .Include(c => c.Orders)
@@ -74,7 +70,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public List<Customer> GetCustomerByName(string name)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 return context.Customers
                               .Include(c => c.Orders)
@@ -85,7 +81,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public Customer GetCustomerByPhone(string phone)
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 return context.Customers
                               .Include(c => c.Orders)
@@ -95,7 +91,7 @@ namespace DataAccessLayer.Repositories.Implementations
 
         public List<Customer> GetCustomers()
         {
-            using (var context = ContextFactory())
+            using (var context = new RestaurantMiniManagementDbContext())
             {
                 return context.Customers.Include(c => c.Orders).ToList();
             }

@@ -16,7 +16,6 @@
     <converters:CurrencyConverter x:Key="CurrencyConverter"/>
     <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
     <converters:RowIndexConverter x:Key="RowIndexConverter"/>
-    <converters:TableSelectionConverter x:Key="TableSelectionConverter"/>
 
     <!-- Color Brushes -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="#007ACC"/>

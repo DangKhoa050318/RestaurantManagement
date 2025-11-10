@@ -6,7 +6,6 @@ using RestaurantManagementWPF.ViewModels.Dialogs;
 using Services.Implementations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DataAccessLayer.Repositories.Implementations;
 
 namespace RestaurantManagementWPF.ViewModels
 {
@@ -27,8 +26,8 @@ namespace RestaurantManagementWPF.ViewModels
 
         public DishManagementViewModel()
         {
-            _dishService = new DishService(DishRepository.Instance);
-            _categoryService = new CategoryService(CategoryRepository.Instance);
+            _dishService = new DishService();
+            _categoryService = new CategoryService();
             _dialogService = new DialogService();
 
             // Commands

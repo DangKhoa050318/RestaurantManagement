@@ -12,9 +12,9 @@ namespace Services.Implementations
     {
         private readonly ICustomerRepository _customerRepository;
 
-        public CustomerService(ICustomerRepository customerRepository)
+        public CustomerService()
         {
-            _customerRepository = customerRepository;
+            _customerRepository = CustomerRepository.Instance;
         }
 
         public List<Customer> GetCustomers() => _customerRepository.GetCustomers();

@@ -12,9 +12,9 @@ namespace Services.Implementations
     {
         private readonly IDishRepository _dishRepository;
 
-        public DishService(IDishRepository dishRepository)
+        public DishService()
         {
-            _dishRepository = dishRepository;
+            _dishRepository = DishRepository.Instance;
         }
 
         public List<Dish> GetDishes() => _dishRepository.GetDish();
