@@ -64,6 +64,7 @@ namespace RestaurantManagementWPF.ViewModels
                     "Category" => new Views.Pages.CategoryManagementPage(),
                     "Customer" => new Views.Pages.CustomerManagementPage(),
                     "Report" => new Views.Pages.OrderReportPage(), // ? Enabled
+                    "Chatbot" => new Views.Pages.ChatbotPage(),
                     _ => null
                 };
 
