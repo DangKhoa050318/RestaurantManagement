@@ -17,6 +17,11 @@ namespace BusinessObjects.Models
         [Required]
         public DateTime OrderTime { get; set; } = DateTime.Now;
 
+        /// <summary>
+        /// Thời gian thanh toán (NULL nếu chưa thanh toán)
+        /// </summary>
+        public DateTime? PaymentTime { get; set; }
+
         [Required, StringLength(15)]
         public string Status { get; set; } = null!;
 

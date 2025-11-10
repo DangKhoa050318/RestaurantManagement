@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManagementWPF", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{0077B8DD-DDF0-4D23-82F9-5355ACC2047C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer.Tests", "BusinessLogicLayer.Tests\BusinessLogicLayer.Tests.csproj", "{AD916D91-6DD5-4920-A3E0-28E7FDAAF2AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{0077B8DD-DDF0-4D23-82F9-5355ACC2047C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0077B8DD-DDF0-4D23-82F9-5355ACC2047C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0077B8DD-DDF0-4D23-82F9-5355ACC2047C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD916D91-6DD5-4920-A3E0-28E7FDAAF2AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD916D91-6DD5-4920-A3E0-28E7FDAAF2AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD916D91-6DD5-4920-A3E0-28E7FDAAF2AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD916D91-6DD5-4920-A3E0-28E7FDAAF2AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

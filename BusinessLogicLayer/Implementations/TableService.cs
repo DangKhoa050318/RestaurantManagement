@@ -11,9 +11,9 @@ namespace Services.Implementations
     {
         private readonly ITableRepository _tableRepository;
 
-        public TableService()
+        public TableService(ITableRepository tableRepository)
         {
-            _tableRepository = TableRepository.Instance;
+            _tableRepository = tableRepository;
         }
 
         public List<Table> GetTables() => _tableRepository.GetTables();

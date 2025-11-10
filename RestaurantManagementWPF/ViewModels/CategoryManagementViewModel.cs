@@ -4,7 +4,7 @@ using RestaurantManagementWPF.Services;
 using Services.Implementations;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-
+using DataAccessLayer.Repositories.Implementations;
 namespace RestaurantManagementWPF.ViewModels
 {
     public class CategoryManagementViewModel : BaseViewModel
@@ -19,7 +19,7 @@ namespace RestaurantManagementWPF.ViewModels
 
         public CategoryManagementViewModel()
         {
-            _categoryService = new CategoryService();
+            _categoryService = new CategoryService(CategoryRepository.Instance);
             _dialogService = new DialogService();
 
             // Commands
@@ -95,6 +95,15 @@ namespace RestaurantManagementWPF.ViewModels
                 {
                     var categories = _categoryService.GetCategories();
 
+                    // ? Apply search filter if search text exists
+                    if (!string.IsNullOrWhiteSpace(SearchText))
+                    {
+                        categories = categories
+                            .Where(c => c.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                                       (c.Description != null && c.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase)))
+                            .ToList();
+                    }
+
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
                         Categories.Clear();
@@ -117,7 +126,7 @@ namespace RestaurantManagementWPF.ViewModels
 
         private void ApplySearch()
         {
-            // Reload and filter
+            // ? Reload with search filter applied
             _ = LoadCategoriesAsync();
         }
 
