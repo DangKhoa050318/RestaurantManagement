@@ -69,9 +69,9 @@ namespace DataAccessLayer
             // 3. Ánh xạ Class 'Food' (C#) sang bảng 'dishes' (DB)
             modelBuilder.Entity<Dish>(entity =>
             {
-                entity.HasKey(e => e.DishId).HasName("PK__dishs__18834F505B455D73");
+                entity.HasKey(e => e.DishId).HasName("PK__dishes__18834F505B455D73");
 
-                entity.ToTable("dishs");
+                entity.ToTable("dishes");
 
                 entity.Property(e => e.Description).HasMaxLength(250);
                 entity.Property(e => e.ImgUrl)
