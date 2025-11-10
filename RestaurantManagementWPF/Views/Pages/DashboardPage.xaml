@@ -53,107 +53,220 @@
 
         <!-- Statistics Cards -->
         <Grid Grid.Row="1" Margin="0,0,0,30">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="15"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="15"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="15"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="15"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <!-- Total Tables Card -->
-            <Border Grid.Column="0"
-                    Background="#E3F2FD"
-                    CornerRadius="8"
-                    Padding="20">
-                <StackPanel>
-                    <TextBlock Text="&#128444;" 
-                               FontSize="32"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
-                    <TextBlock Text="Total Tables" 
-                               FontSize="14"
-                               Foreground="#666666"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,5"/>
-                    <TextBlock Text="{Binding TotalTables}" 
-                               FontSize="32"
-                               FontWeight="Bold"
-                               Foreground="#007ACC"
-                               HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Border>
+            <!-- Row 1: Table & Order Statistics -->
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- Available Tables Card -->
-            <Border Grid.Column="2"
-                    Background="#E8F5E9"
-                    CornerRadius="8"
-                    Padding="20">
-                <StackPanel>
-                    <TextBlock Text="&#9989;" 
-                               FontSize="32"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
-                    <TextBlock Text="Available" 
-                               FontSize="14"
-                               Foreground="#666666"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,5"/>
-                    <TextBlock Text="{Binding AvailableTables}" 
-                               FontSize="32"
-                               FontWeight="Bold"
-                               Foreground="#28A745"
-                               HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Border>
+                <!-- Total Tables Card -->
+                <Border Grid.Column="0"
+                        Background="#E3F2FD"
+                        CornerRadius="8"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="&#xE80F;" 
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="32"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#2196F3"
+                                   Margin="0,0,0,10"/>
+                        <TextBlock Text="Total Tables" 
+                                   FontSize="14"
+                                   Foreground="#666666"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding TotalTables}" 
+                                   FontSize="32"
+                                   FontWeight="Bold"
+                                   Foreground="#2196F3"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
 
-            <!-- Active Orders Card -->
-            <Border Grid.Column="4"
-                    Background="#FFF3E0"
-                    CornerRadius="8"
-                    Padding="20">
-                <StackPanel>
-                    <TextBlock Text="&#128221;" 
-                               FontSize="32"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
-                    <TextBlock Text="Active Orders" 
-                               FontSize="14"
-                               Foreground="#666666"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,5"/>
-                    <TextBlock Text="{Binding ActiveOrders}" 
-                               FontSize="32"
-                               FontWeight="Bold"
-                               Foreground="#FF9800"
-                               HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Border>
+                <!-- Available Tables Card (Empty) -->
+                <Border Grid.Column="2"
+                        Background="#E8F5E9"
+                        CornerRadius="8"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="&#xE73E;" 
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="32"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#4CAF50"
+                                   Margin="0,0,0,10"/>
+                        <TextBlock Text="Available" 
+                                   FontSize="14"
+                                   Foreground="#666666"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding AvailableTables}" 
+                                   FontSize="32"
+                                   FontWeight="Bold"
+                                   Foreground="#4CAF50"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
 
-            <!-- Total Dishes Card -->
-            <Border Grid.Column="6"
-                    Background="#FCE4EC"
-                    CornerRadius="8"
-                    Padding="20">
-                <StackPanel>
-                    <TextBlock Text="&#127860;" 
-                               FontSize="32"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
-                    <TextBlock Text="Total Dishes" 
-                               FontSize="14"
-                               Foreground="#666666"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,5"/>
-                    <TextBlock Text="{Binding TotalDishes}" 
-                               FontSize="32"
-                               FontWeight="Bold"
-                               Foreground="#E91E63"
-                               HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Border>
+                <!-- Tables In Use Card -->
+                <Border Grid.Column="4"
+                        Background="#FFF3E0"
+                        CornerRadius="8"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="&#xE8EA;" 
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="32"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#FF9800"
+                                   Margin="0,0,0,10"/>
+                        <TextBlock Text="In Use" 
+                                   FontSize="14"
+                                   Foreground="#666666"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding TablesInUse}" 
+                                   FontSize="32"
+                                   FontWeight="Bold"
+                                   Foreground="#FF9800"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Active Orders Card -->
+                <Border Grid.Column="6"
+                        Background="#FFF3E0"
+                        CornerRadius="8"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="&#xE8F1;" 
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="32"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#FF6F00"
+                                   Margin="0,0,0,10"/>
+                        <TextBlock Text="Active Orders" 
+                                   FontSize="14"
+                                   Foreground="#666666"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding ActiveOrders}" 
+                                   FontSize="32"
+                                   FontWeight="Bold"
+                                   Foreground="#FF6F00"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Row 2: Revenue & Menu Statistics -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Today's Revenue Card -->
+                <Border Grid.Column="0"
+                        Background="#E8F5E9"
+                        CornerRadius="8"
+                        Padding="20"
+                        Grid.ColumnSpan="3">
+                    <StackPanel>
+                        <TextBlock Text="&#xE7BB;" 
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="32"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#4CAF50"
+                                   Margin="0,0,0,10"/>
+                        <TextBlock Text="Today's Revenue" 
+                                   FontSize="14"
+                                   Foreground="#666666"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding TodayRevenueDisplay}" 
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="#4CAF50"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock FontSize="12"
+                                   Foreground="#999999"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,5,0,0">
+                            <Run Text="{Binding CompletedOrdersToday}"/>
+                            <Run Text=" orders completed"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Total Dishes Card -->
+                <Border Grid.Column="4"
+                        Background="#FCE4EC"
+                        CornerRadius="8"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="&#xE8E2;" 
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="32"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#E91E63"
+                                   Margin="0,0,0,10"/>
+                        <TextBlock Text="Total Dishes" 
+                                   FontSize="14"
+                                   Foreground="#666666"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding TotalDishes}" 
+                                   FontSize="32"
+                                   FontWeight="Bold"
+                                   Foreground="#E91E63"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Total Customers Card -->
+                <Border Grid.Column="6"
+                        Background="#F3E5F5"
+                        CornerRadius="8"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="&#xE716;" 
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="32"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#9C27B0"
+                                   Margin="0,0,0,10"/>
+                        <TextBlock Text="Customers" 
+                                   FontSize="14"
+                                   Foreground="#666666"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding TotalCustomers}" 
+                                   FontSize="32"
+                                   FontWeight="Bold"
+                                   Foreground="#9C27B0"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
 
         <!-- Quick Actions -->
