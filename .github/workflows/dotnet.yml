@@ -1,0 +1,58 @@
+# Tên của quy trình CI, sẽ hiển thị trên tab "Actions"
+name: .NET Build and Test
+
+# Định nghĩa các sự kiện (trigger) sẽ kích hoạt quy trình này
+on:
+  # Chạy khi có push code lên nhánh "main" hoặc "develop"
+  push:
+    branches: [ "main", "develop" ]
+  
+  # Chạy khi có Pull Request nhắm vào nhánh "main"
+  pull_request:
+    branches: [ "main" ]
+
+  # Cho phép bạn chạy quy trình này thủ công từ tab "Actions"
+  workflow_dispatch:
+
+# Danh sách các công việc (jobs) cần thực hiện
+jobs:
+  build-and-test:
+    # -----------------------------------------------------------------
+    # QUAN TRỌNG: Dùng "windows-latest"
+    # Vì mình thấy bạn có dự án "RestaurantManagementWPF", 
+    # dự án WPF bắt buộc phải build trên môi trường Windows.
+    # Nếu bạn dùng "ubuntu-latest" (Linux), quá trình build sẽ thất bại.
+    # -----------------------------------------------------------------
+    runs-on: windows-latest
+
+    # Các bước thực hiện tuần tự
+    steps:
+      # Bước 1: Lấy (checkout) code của bạn từ GitHub về máy ảo
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # Bước 2: Cài đặt môi trường .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          # --- BẠN CẦN THAY ĐỔI ---
+          # Hãy thay '8.0.x' bằng phiên bản .NET bạn đang dùng
+          # Ví dụ: '6.0.x', '7.0.x', v.v.
+          dotnet-version: '8.0.x'
+
+      # Bước 3: Phục hồi các gói thư viện (NuGet packages)
+      # Lệnh này sẽ tự động tìm file .sln (ví dụ: RestaurantManagement.sln)
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Bước 4: Build toàn bộ solution
+      # Dùng configuration "Release" để build bản tối ưu
+      # Thêm --no-restore vì chúng ta đã restore ở bước trên
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      # Bước 5: Chạy tests
+      # Lệnh này sẽ tự động tìm các dự án test (như BusinessLogicLayer.Tests)
+      # Thêm --no-build vì chúng ta đã build ở bước trên
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity normal
