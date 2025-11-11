@@ -101,7 +101,7 @@ namespace Services.Chatbot
         /// <returns>ChatIntent với IntentType và Parameters</returns>
         public async Task<ChatIntent> AnalyzeIntentAsync(
             string userMessage,
-            List<ChatMessage> conversationHistory = null)
+            List<ChatMessage>? conversationHistory = null)  // ✅ Thêm ? để nullable
         {
             try
             {
@@ -139,7 +139,7 @@ namespace Services.Chatbot
         public async Task<string> GenerateNaturalResponseAsync(
             string userQuestion,
             string dataText,
-            List<ChatMessage> conversationHistory = null)
+            List<ChatMessage>? conversationHistory = null)  // ✅ Thêm ?
         {
             try
             {
@@ -168,7 +168,7 @@ namespace Services.Chatbot
         /// <returns>Response lịch sự giải thích</returns>
         public async Task<string> GenerateFallbackResponseAsync(
             string userMessage,
-            List<ChatMessage> conversationHistory = null)
+            List<ChatMessage>? conversationHistory = null)  // ✅ Thêm ?
         {
             try
             {
@@ -222,8 +222,8 @@ namespace Services.Chatbot
                         Temperature = _temperature,
                         MaxOutputTokens = _maxTokens,
                         TopP = _topP,
-                        TopK = _topK,
-                        ResponseMimeType = isJsonMode ? "application/json" : "text/plain"
+                        TopK = _topK
+                        
                     }
                 };
 
@@ -295,7 +295,7 @@ namespace Services.Chatbot
         /// <summary>
         /// Build prompt phân tích intent - Optimized cho Gemini 2.0
         /// </summary>
-        private string BuildIntentAnalysisPrompt(string userMessage, List<ChatMessage> conversationHistory)
+        private string BuildIntentAnalysisPrompt(string userMessage, List<ChatMessage>? conversationHistory)  // ✅ Thêm ?
         {
             var sb = new StringBuilder();
 
@@ -357,7 +357,7 @@ namespace Services.Chatbot
         private string BuildResponseGenerationPrompt(
             string userQuestion,
             string dataText,
-            List<ChatMessage> conversationHistory)
+            List<ChatMessage>? conversationHistory)  // ✅ Thêm ?
         {
             var sb = new StringBuilder();
 
@@ -403,7 +403,7 @@ namespace Services.Chatbot
         /// <summary>
         /// Build prompt fallback
         /// </summary>
-        private string BuildFallbackPrompt(string userMessage, List<ChatMessage> conversationHistory)
+        private string BuildFallbackPrompt(string userMessage, List<ChatMessage>? conversationHistory)  // ✅ Thêm ?
         {
             var sb = new StringBuilder();
 
@@ -448,8 +448,13 @@ namespace Services.Chatbot
         {
             try
             {
-                // Gemini 2.0 với JSON mode sẽ return pure JSON
-                var json = JsonSerializer.Deserialize<JsonElement>(response);
+                // ✅ BƯỚC 1: Làm sạch response trước khi parse
+                var cleanedResponse = CleanJsonResponse(response);
+
+                Console.WriteLine($"[GeminiApiService] Cleaned JSON: {cleanedResponse}");
+
+                // ✅ BƯỚC 2: Parse JSON đã được làm sạch
+                var json = JsonSerializer.Deserialize<JsonElement>(cleanedResponse);
 
                 return new ChatIntent
                 {
@@ -510,7 +515,7 @@ namespace Services.Chatbot
                 {
                     parameters[property.Name] = property.Value.ValueKind switch
                     {
-                        JsonValueKind.String => property.Value.GetString(),
+                        JsonValueKind.String => property.Value.GetString() ?? string.Empty,  // ✅ Fix null
                         JsonValueKind.Number => property.Value.GetInt32(),
                         JsonValueKind.True => true,
                         JsonValueKind.False => false,
@@ -529,6 +534,57 @@ namespace Services.Chatbot
         #endregion
 
         #region Helper Methods
+
+        /// <summary>
+        /// ✅ Làm sạch JSON response từ Gemini (loại bỏ markdown, whitespace thừa)
+        /// </summary>
+        private string CleanJsonResponse(string response)
+        {
+            if (string.IsNullOrWhiteSpace(response))
+                return "{}";
+
+            // Loại bỏ markdown code blocks
+            response = response.Trim();
+            
+            // Remove ```json ... ```
+            if (response.StartsWith("```json"))
+            {
+                response = response.Substring(7); // Remove "```json"
+            }
+            else if (response.StartsWith("```"))
+            {
+                response = response.Substring(3); // Remove "```"
+            }
+
+            if (response.EndsWith("```"))
+            {
+                response = response.Substring(0, response.Length - 3);
+            }
+
+            // Trim whitespace
+            response = response.Trim();
+
+            // Nếu không tìm thấy JSON, trích xuất phần JSON
+            if (!response.StartsWith("{"))
+            {
+                var jsonStart = response.IndexOf('{');
+                if (jsonStart >= 0)
+                {
+                    response = response.Substring(jsonStart);
+                }
+            }
+
+            if (!response.EndsWith("}"))
+            {
+                var jsonEnd = response.LastIndexOf('}');
+                if (jsonEnd >= 0)
+                {
+                    response = response.Substring(0, jsonEnd + 1);
+                }
+            }
+
+            return response;
+        }
 
         /// <summary>
         /// Load configuration từ appsettings.json
@@ -552,22 +608,22 @@ namespace Services.Chatbot
         private class GeminiRequest
         {
             [JsonPropertyName("contents")]
-            public GeminiContent[] Contents { get; set; }
+            public required GeminiContent[] Contents { get; set; }  // ✅ Thêm required
 
             [JsonPropertyName("generationConfig")]
-            public GeminiGenerationConfig GenerationConfig { get; set; }
+            public required GeminiGenerationConfig GenerationConfig { get; set; }  // ✅ Thêm required
         }
 
         private class GeminiContent
         {
             [JsonPropertyName("parts")]
-            public GeminiPart[] Parts { get; set; }
+            public required GeminiPart[] Parts { get; set; }  // ✅ Thêm required
         }
 
         private class GeminiPart
         {
             [JsonPropertyName("text")]
-            public string Text { get; set; }
+            public required string Text { get; set; }  // ✅ Thêm required
         }
 
         private class GeminiGenerationConfig
@@ -583,9 +639,6 @@ namespace Services.Chatbot
 
             [JsonPropertyName("topK")]
             public int TopK { get; set; }
-
-            [JsonPropertyName("responseMimeType")]
-            public string ResponseMimeType { get; set; }
         }
 
         /// <summary>
@@ -594,16 +647,16 @@ namespace Services.Chatbot
         private class GeminiResponse
         {
             [JsonPropertyName("candidates")]
-            public GeminiCandidate[] Candidates { get; set; }
+            public GeminiCandidate[]? Candidates { get; set; }  // ✅ Nullable
         }
 
         private class GeminiCandidate
         {
             [JsonPropertyName("content")]
-            public GeminiContent Content { get; set; }
+            public GeminiContent? Content { get; set; }  // ✅ Nullable
 
             [JsonPropertyName("finishReason")]
-            public string FinishReason { get; set; }
+            public string? FinishReason { get; set; }  // ✅ Nullable
 
             [JsonPropertyName("index")]
             public int Index { get; set; }

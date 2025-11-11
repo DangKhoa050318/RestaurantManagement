@@ -1,12 +1,13 @@
-﻿using System;
+﻿using BusinessObjects.Models;
+using BusinessObjects.Models.Chatbot;
+using DataAccessLayer.Repositories.Implementations;
+using Services.Implementations;
+using Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessObjects.Models;
-using BusinessObjects.Models.Chatbot;
-using Services.Interfaces;
-using Services.Implementations;
 
 namespace Services.Chatbot.Handlers
 {
@@ -29,7 +30,7 @@ namespace Services.Chatbot.Handlers
         public TableIntentHandler()
         {
             // Tạo instance mới của TableService
-            _tableService = new TableService();
+            _tableService = new TableService(TableRepository.Instance);
         }
 
         /// <summary>

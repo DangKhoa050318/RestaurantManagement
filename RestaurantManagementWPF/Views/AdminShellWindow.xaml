@@ -182,8 +182,8 @@
                     </Button>
                     <!-- Chatbot Assistant -->
                     <Button Command="{Binding NavigateCommand}"
-        CommandParameter="Chatbot"
-        Style="{StaticResource MenuButtonStyle}">
+                            CommandParameter="Chatbot"
+                            Style="{StaticResource MenuButtonStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🤖" FontSize="20" Margin="0,0,15,0"/>
                             <TextBlock Text="AI Assistant" FontSize="14"/>

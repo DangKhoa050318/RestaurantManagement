@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using BusinessObjects.Models;
 using BusinessObjects.Models.Chatbot;
 using Services.Interfaces;
-using Services.Implementations;  // ✅ Thêm dòng này
+using Services.Implementations;
+using DataAccessLayer.Repositories.Implementations;  // ✅ Thêm dòng này
 
 namespace Services.Chatbot.Handlers
 {
@@ -30,7 +31,7 @@ namespace Services.Chatbot.Handlers
         public MenuIntentHandler()
         {
             // ✅ TẠO INSTANCE MỚI thay vì dùng Singleton
-            _dishService = new DishService();
+            _dishService = new DishService(DishRepository.Instance);
         }
 
         /// <summary>

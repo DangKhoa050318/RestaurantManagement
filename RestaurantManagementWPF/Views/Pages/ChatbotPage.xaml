@@ -5,7 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:vm="clr-namespace:RestaurantManagementWPF.ViewModels"
       mc:Ignorable="d"
-      Title="Restaurant Assistant Chatbot"
+      Title="Chatbot"
       Background="#F8F9FA">
 
     <Page.DataContext>
